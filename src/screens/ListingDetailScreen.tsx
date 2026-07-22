@@ -433,11 +433,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'flex-start',
   },
-  backIcon: {
-    fontSize: 32,
-    color: '#1A1A2E',
-    lineHeight: 32,
-  },
   headerTitle: {
     fontSize: 18,
     fontWeight: 'bold',
@@ -448,13 +443,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   shareButton: {
-    padding: 6,
+    width: 36,
+    height: 36,
     marginRight: 8,
-    backgroundColor: '#F0F0F0',
-    borderRadius: 16,
-  },
-  shareIcon: {
-    fontSize: 16,
+    backgroundColor: '#FFF0F0',
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#FFE5E5',
   },
   urgencyBadge: {
     paddingHorizontal: 10,

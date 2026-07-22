@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, SafeAreaView, ScrollView, StatusBar, Alert, Linking, ActivityIndicator, Modal, TextInput } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, SafeAreaView, ScrollView, StatusBar, Alert, Linking, ActivityIndicator, Modal, TextInput, Share } from 'react-native';
 import { getVolunteers, acceptVolunteer, rejectVolunteer, completeBloodRequest, deleteBloodRequest, resetVolunteer, updateBloodRequest, getBloodRequestById } from '../api/blood';
 import { getErrorMessage } from '../utils/errors';
 import { Ionicons } from '@expo/vector-icons';
@@ -243,11 +243,36 @@ export default function MyListingDetailScreen({ route, navigation }: any) {
       
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Text style={styles.backIcon}>←</Text>
+          <Ionicons name="chevron-back" size={26} color="#1A1A2E" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>İlan Detayı</Text>
-        <View style={[styles.statusBadge, { backgroundColor: listingStatus === 'Aktif' ? '#2EC4B6' : '#999' }]}>
-          <Text style={styles.statusBadgeText}>{listingStatus}</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <TouchableOpacity 
+            style={{
+              width: 36,
+              height: 36,
+              marginRight: 8,
+              backgroundColor: '#FFF0F0',
+              borderRadius: 18,
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderWidth: 1,
+              borderColor: '#FFE5E5',
+            }}
+            onPress={async () => {
+              try {
+                const message = `🩸 ACİL KAN İHTİYACI (${listingData.bloodType})\n\nHastane: ${listingData.hospital}\nKonum: ${listingData.location}\nİhtiyaç: ${listingData.unitsNeeded} Ünite\n\nKan Uygulaması üzerinden hemen gönüllü olabilirsiniz!`;
+                await Share.share({ message });
+              } catch (error) {
+                console.log('Share error:', error);
+              }
+            }}
+          >
+            <Ionicons name="share-social-outline" size={20} color="#E63946" />
+          </TouchableOpacity>
+          <View style={[styles.statusBadge, { backgroundColor: listingStatus === 'Aktif' ? '#2EC4B6' : '#999' }]}>
+            <Text style={styles.statusBadgeText}>{listingStatus}</Text>
+          </View>
         </View>
       </View>
 
@@ -264,8 +289,9 @@ export default function MyListingDetailScreen({ route, navigation }: any) {
             </View>
           </View>
           {listingData.medicalNote ? (
-            <View style={{ marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#F0F0F0' }}>
-              <Text style={{ fontSize: 13, color: '#666', fontStyle: 'italic' }}>📝 Not: {listingData.medicalNote}</Text>
+            <View style={{ marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#F0F0F0', flexDirection: 'row', alignItems: 'center' }}>
+              <Ionicons name="document-text-outline" size={16} color="#666" style={{ marginRight: 6 }} />
+              <Text style={{ fontSize: 13, color: '#666', fontStyle: 'italic', flex: 1 }}>Not: {listingData.medicalNote}</Text>
             </View>
           ) : null}
         </View>
@@ -631,10 +657,6 @@ const styles = StyleSheet.create({
   },
   backButton: {
     padding: 8,
-  },
-  backIcon: {
-    fontSize: 24,
-    color: '#333',
   },
   headerTitle: {
     fontSize: 18,
