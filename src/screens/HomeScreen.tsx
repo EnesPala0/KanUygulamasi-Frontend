@@ -128,8 +128,8 @@ export default function HomeScreen({ navigation }: any) {
       });
 
       setListings(formattedListings);
-    } catch (error) {
-      console.error("İlanlar çekilirken hata:", error);
+    } catch (error: any) {
+      console.log("İlanlar çekilirken hata:", error?.message || error);
       Alert.alert('Hata', 'İlanlar sunucudan alınamadı.');
     } finally {
       setLoading(false);

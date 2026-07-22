@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, TouchableOpacity, SafeAreaView, ScrollView, Sta
 import { useFocusEffect } from '@react-navigation/native';
 import { getMyApplications, getMyCreatedListings, getUserProfile, updateUserProfile, getVolunteers } from '../api/blood';
 import { changePassword } from '../api/auth';
+import { getErrorMessage } from '../utils/errors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -191,8 +192,8 @@ export default function ProfileScreen({ navigation }: any) {
       );
       setCreatedListings(formattedCreated);
 
-    } catch (error) {
-      console.error("Veriler çekilirken hata:", error);
+    } catch (error: any) {
+      console.log("Veriler çekilirken hata:", error?.message || error);
     } finally {
       setLoading(false);
     }
@@ -251,8 +252,8 @@ export default function ProfileScreen({ navigation }: any) {
       Alert.alert("Başarılı", "Profiliniz başarıyla güncellendi!");
       setEditModalVisible(false);
       await fetchAllData(); 
-    } catch (error) {
-      console.error("Güncelleme hatası:", error);
+    } catch (error: any) {
+      console.log("Güncelleme hatası:", error?.message || error);
       Alert.alert("Hata", "Profil güncellenirken bir sorun oluştu.");
     } finally {
       setIsUpdating(false);
@@ -276,7 +277,7 @@ export default function ProfileScreen({ navigation }: any) {
       setOldPassword('');
       setNewPassword('');
     } catch (error: any) {
-      const msg = error?.response?.data?.error || "Şifre değiştirilemedi.";
+      const msg = getErrorMessage(error, "Şifre değiştirilemedi.");
       Alert.alert("Hata", msg);
     } finally {
       setIsChangingPassword(false);

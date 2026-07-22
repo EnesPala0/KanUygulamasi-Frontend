@@ -77,8 +77,8 @@ export default function NotificationsScreen({ navigation }: any) {
         };
       }) : [];
       setNotifications(formatted);
-    } catch (error) {
-      console.error('Error fetching notifications:', error);
+    } catch (error: any) {
+      console.log('Error fetching notifications:', error?.message || error);
       Alert.alert('Hata', 'Bildirimler yüklenemedi.');
     } finally {
       setLoading(false);
@@ -107,8 +107,8 @@ export default function NotificationsScreen({ navigation }: any) {
 
     try {
       await markNotificationAsRead(id);
-    } catch (error) {
-      console.error('Error marking as read:', error);
+    } catch (error: any) {
+      console.log('Error marking as read:', error?.message || error);
     }
   };
 
@@ -125,8 +125,8 @@ export default function NotificationsScreen({ navigation }: any) {
       || notification.rawItem?.listing_id 
       || notification.rawItem?.ListingID 
       || notification.rawItem?.blood_request?.ID 
-      || notification.rawItem?.blood_request?.id
-      || notification.rawItem?.data?.blood_request_id
+      || notification.rawItem?.blood_request?.id 
+      || notification.rawItem?.data?.blood_request_id 
       || notification.rawItem?.data?.request_id;
 
     const titleStr = (notification.title || '').toLowerCase();

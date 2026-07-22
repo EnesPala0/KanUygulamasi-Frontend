@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { registerUser } from '../api/auth';
+import { getErrorMessage } from '../utils/errors';
 import { Ionicons } from '@expo/vector-icons';
 import {
   StyleSheet,
@@ -92,9 +93,10 @@ export default function SignupScreen({ navigation }: any) {
     // İşlem başarılı, Login'e yolla
     navigation.navigate('Login');
 
-  } catch (error) {
-    console.error("Kayıt Hatası:", error);
-    Alert.alert('Kayıt Başarısız', 'Bir sorun oluştu. Bilgileri kontrol edip tekrar deneyin.');
+  } catch (error: any) {
+    console.log("Kayıt Hatası detay:", error?.response?.data || error?.message);
+    const backendMsg = getErrorMessage(error, 'Kayıt olunamadı. Lütfen girdiğiniz bilgilerin doğruluğunu kontrol edip tekrar deneyiniz.');
+    Alert.alert('Kayıt Başarısız', backendMsg);
   }
 };
   return (

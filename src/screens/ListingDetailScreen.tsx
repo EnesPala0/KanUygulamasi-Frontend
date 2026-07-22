@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, SafeAreaView, ScrollView, StatusBar, Alert, Share, Linking, Platform, ActivityIndicator } from 'react-native';
 import { applyAsVolunteer, cancelVolunteerApplication, getBloodRequestById, getVolunteers, getUserProfile, getMyApplications } from '../api/blood';
+import { getErrorMessage } from '../utils/errors';
 import { Ionicons } from '@expo/vector-icons';
 
 const getUrgencyColor = (urgency: string) => {
@@ -167,15 +168,16 @@ export default function ListingDetailScreen({ route, navigation }: any) {
                 setIsVolunteered(true);
                 Alert.alert('Harika!', 'Başvurunuz başarıyla hastaya iletildi.');
               } catch (error: any) {
-                console.error("Başvuru Hatası:", error);
-                const errMsg = `${error?.response?.data?.error || ''} ${error?.response?.data?.details || ''} ${error?.response?.data?.message || ''} ${error?.message || ''}`.toString();
-                if (errMsg.toLowerCase().includes('own') || errMsg.toLowerCase().includes('kendi') || isMine) {
+                console.log("Başvuru Hatası detay:", error?.response?.data || error?.message);
+                const rawMsg = `${error?.response?.data?.error || ''} ${error?.response?.data?.details || ''} ${error?.response?.data?.message || ''} ${error?.message || ''}`.toString().toLowerCase();
+                if (rawMsg.includes('own') || rawMsg.includes('kendi') || isMine) {
                   Alert.alert('Uyarı', 'Kendi açtığınız kan ilanına gönüllü başvurusu yapamazsınız. İlanı yönetmek için aşağıdan İlanı Yönet ekranına geçebilirsiniz.');
-                } else if (errMsg.toLowerCase().includes('already') || errMsg.toLowerCase().includes('zaten')) {
+                } else if (rawMsg.includes('already') || rawMsg.includes('zaten')) {
                   setIsVolunteered(true);
                   Alert.alert('Bilgi', 'Bu ilana zaten başvuru yapmışsınız. Başvurunuz hastaya iletilmiş durumdadır.');
                 } else {
-                  Alert.alert('Uyarı', errMsg.trim() ? `Başvuru yapılamadı: ${error?.response?.data?.error || errMsg.trim()}` : 'Başvuru yapılamadı. Kendi ilanınıza başvurmaya çalışıyor veya zaten başvurmuş olabilirsiniz.');
+                  const translated = getErrorMessage(error, 'Başvuru yapılamadı. Kendi ilanınıza başvurmaya çalışıyor veya zaten başvurmuş olabilirsiniz.');
+                  Alert.alert('Uyarı', translated);
                 }
               } finally {
                 setIsSubmitting(false);
@@ -198,8 +200,8 @@ export default function ListingDetailScreen({ route, navigation }: any) {
                 await cancelVolunteerApplication(listingData.id || listing.id, listingData.applicationId || listing.applicationId);
                 setIsVolunteered(false);
                 Alert.alert('İptal Edildi', 'Gönüllü başvurunuz başarıyla geri çekildi.');
-              } catch (error) {
-                console.error("İptal Hatası:", error);
+              } catch (error: any) {
+                console.log("İptal Hatası:", error?.message || error);
                 setIsVolunteered(false);
                 Alert.alert('İptal Edildi', 'Gönüllü başvurunuz geri çekildi.');
               } finally {
@@ -219,12 +221,12 @@ export default function ListingDetailScreen({ route, navigation }: any) {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Text style={styles.backIcon}>‹</Text>
+          <Ionicons name="chevron-back" size={26} color="#1A1A2E" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>İlan Detayı</Text>
         <View style={styles.headerRight}>
           <TouchableOpacity style={styles.shareButton} onPress={handleShare}>
-            <Text style={styles.shareIcon}>📤</Text>
+            <Ionicons name="share-social-outline" size={20} color="#E63946" />
           </TouchableOpacity>
           <View style={[styles.urgencyBadge, { borderColor: getUrgencyColor(listingData.urgency) }]}>
             <Text style={[styles.urgencyText, { color: getUrgencyColor(listingData.urgency) }]}>{listingData.urgency}</Text>

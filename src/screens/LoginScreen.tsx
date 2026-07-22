@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { loginUser, forgotPassword } from '../api/auth';
+import { getErrorMessage } from '../utils/errors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { 
@@ -42,9 +43,10 @@ export default function LoginScreen({ navigation }: any) {
       
       navigation.reset({ index: 0, routes: [{ name: 'Main' }] }); 
 
-    } catch (error) {
-      console.error("API Hatası:", error);
-      Alert.alert('Giriş Başarısız', 'E-posta veya şifre hatalı.');
+    } catch (error: any) {
+      console.log("Giriş Başarısız:", error?.response?.data || error?.message);
+      const errMsg = getErrorMessage(error, 'E-posta adresiniz veya şifreniz hatalı. Lütfen kontrol edip tekrar deneyiniz.');
+      Alert.alert('Giriş Başarısız', errMsg);
     }
   };
 
@@ -61,7 +63,7 @@ export default function LoginScreen({ navigation }: any) {
       Alert.alert('Talimat Gönderildi', res.message || 'Şifre sıfırlama talimatları e-posta adresinize iletildi.');
     } catch (error: any) {
       console.log('Forgot password error:', error);
-      const msg = error?.response?.data?.error || 'Bu e-posta adresiyle kayıtlı bir hesap bulunamadı.';
+      const msg = getErrorMessage(error, 'Bu e-posta adresiyle kayıtlı bir hesap bulunamadı.');
       Alert.alert('Hata', msg);
     } finally {
       setForgotLoading(false);

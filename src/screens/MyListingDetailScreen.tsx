@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, SafeAreaView, ScrollView, StatusBar, Alert, Linking, ActivityIndicator, Modal, TextInput } from 'react-native';
 import { getVolunteers, acceptVolunteer, rejectVolunteer, completeBloodRequest, deleteBloodRequest, resetVolunteer, updateBloodRequest, getBloodRequestById } from '../api/blood';
+import { getErrorMessage } from '../utils/errors';
 import { Ionicons } from '@expo/vector-icons';
 
 const getBloodTypeBgColor = (bloodType: string) => {
@@ -106,7 +107,7 @@ export default function MyListingDetailScreen({ route, navigation }: any) {
       setEditModalVisible(false);
       Alert.alert("Başarılı", "İlanınız başarıyla güncellendi!");
     } catch (err: any) {
-      console.error("İlan güncellenemedi:", err);
+      console.log("İlan güncellenemedi:", err?.message || err);
       Alert.alert("Hata", "İlan güncellenirken bir sorun oluştu.");
     } finally {
       setIsUpdatingListing(false);
@@ -443,9 +444,9 @@ export default function MyListingDetailScreen({ route, navigation }: any) {
                           setListingStatus('Tamamlandı');
                           Alert.alert('Başarılı', 'İlanınız "Tamamlandı" olarak işaretlendi ve aktif listelerden kaldırıldı. Duyarlılığınız için teşekkür ederiz!');
                         } catch (error: any) {
-                          console.error("completeBloodRequest error details:", error?.response?.data || error?.message || error);
-                          const errMsg = (error?.response?.data?.error || error?.response?.data?.message || error?.message || '').toString();
-                          Alert.alert('Hata', errMsg ? `İlan kapatılamadı: ${errMsg}` : 'İlan kapatılamadı. Lütfen tekrar deneyin.');
+                          console.log("completeBloodRequest error details:", error?.response?.data || error?.message || error);
+                          const errMsg = getErrorMessage(error, 'İlan kapatılamadı. Lütfen tekrar deneyiniz.');
+                          Alert.alert('Hata', errMsg);
                         }
                       } 
                     }
