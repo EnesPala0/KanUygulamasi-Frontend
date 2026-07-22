@@ -150,7 +150,10 @@ export default function LoginScreen({ navigation }: any) {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>🔐 Şifremi Unuttum</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
+              <Ionicons name="key-outline" size={22} color="#1A1A2E" style={{ marginRight: 8 }} />
+              <Text style={[styles.modalTitle, { marginBottom: 0 }]}>Şifremi Unuttum</Text>
+            </View>
             <Text style={styles.modalSubText}>
               Hesabınıza bağlı e-posta adresini girin. Size şifre sıfırlama talimatlarını gönderelim.
             </Text>

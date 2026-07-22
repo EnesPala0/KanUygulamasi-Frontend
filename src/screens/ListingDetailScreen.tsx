@@ -28,10 +28,18 @@ const DetailRow = ({ iconName, label, value }: { iconName: any, label: string, v
   </View>
 );
 
+const normalizeListingStatus = (raw: any): string => {
+  const s = (raw || '').toString().toLowerCase();
+  if (s === 'resolved' || s === 'completed' || s === 'tamamlandı' || s === 'karşılandı' || s === 'closed') return 'Tamamlandı';
+  if (s === 'approved' || s === 'accepted' || s === 'onaylandı' || s === 'kabul' || s === 'in_progress') return 'Onaylandı';
+  if (s === 'cancelled' || s === 'iptal' || s === 'iptal edildi') return 'İptal Edildi';
+  return 'Aktif';
+};
+
 export default function ListingDetailScreen({ route, navigation }: any) {
   const { listing } = route.params;
   const [listingData, setListingData] = useState<any>(listing || {});
-  const [currentStatus, setCurrentStatus] = useState<string>(listing?.status || 'Aktif');
+  const [currentStatus, setCurrentStatus] = useState<string>(normalizeListingStatus(listing?.status || 'Aktif'));
   const [isVolunteered, setIsVolunteered] = useState<boolean>(listing?.isAlreadyVolunteered || false);
   const [isMine, setIsMine] = useState<boolean>(listing?.isMine || false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);

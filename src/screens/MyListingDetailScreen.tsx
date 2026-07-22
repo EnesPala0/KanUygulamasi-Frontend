@@ -17,9 +17,17 @@ const getStatusColor = (status: string) => {
   return '#F4845F'; // Beklemede
 };
 
+const normalizeListingStatus = (raw: any): string => {
+  const s = (raw || '').toString().toLowerCase();
+  if (s === 'resolved' || s === 'completed' || s === 'tamamlandı' || s === 'karşılandı' || s === 'closed') return 'Tamamlandı';
+  if (s === 'approved' || s === 'accepted' || s === 'onaylandı' || s === 'kabul' || s === 'in_progress') return 'Onaylandı';
+  if (s === 'cancelled' || s === 'iptal' || s === 'iptal edildi') return 'İptal Edildi';
+  return 'Aktif';
+};
+
 export default function MyListingDetailScreen({ route, navigation }: any) {
   const { listing } = route.params;
-  const [listingStatus, setListingStatus] = useState(listing.status || 'Aktif');
+  const [listingStatus, setListingStatus] = useState(normalizeListingStatus(listing.status || 'Aktif'));
   
   const [volunteers, setVolunteers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
