@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, SafeAreaView, ScrollView, StatusBar, Alert, Share, Linking, Platform, ActivityIndicator } from 'react-native';
 import { applyAsVolunteer, cancelVolunteerApplication, getBloodRequestById, getVolunteers, getUserProfile, getMyApplications } from '../api/blood';
+import { Ionicons } from '@expo/vector-icons';
 
 const getUrgencyColor = (urgency: string) => {
   if (urgency === 'Kritik') return '#E63946';
@@ -17,10 +18,10 @@ const getBloodTypeBgColor = (bloodType: string) => {
   return '#1A1A2E';
 };
 
-const DetailRow = ({ icon, label, value }: { icon: string, label: string, value: string }) => (
+const DetailRow = ({ iconName, label, value }: { iconName: any, label: string, value: string }) => (
   <View style={styles.detailRow}>
     <View style={styles.detailLabelContainer}>
-      <Text style={styles.detailIcon}>{icon}</Text>
+      <Ionicons name={iconName} size={18} color="#666" style={{ marginRight: 6 }} />
       <Text style={styles.detailLabel}>{label}</Text>
     </View>
     <Text style={styles.detailValue}>{value}</Text>
@@ -115,7 +116,7 @@ export default function ListingDetailScreen({ route, navigation }: any) {
   const handleShare = async () => {
     try {
       await Share.share({
-        message: `🚨 Acil Kan İhtiyacı! ${listingData.patientName} için ${listingData.hospital} (${listingData.location}) hastanesinde ${listingData.bloodType} kan grubuna ihtiyaç var. Lütfen BloodBridge uygulamasından başvurarak destek olun. Her bağış bir hayat kurtarır!`,
+        message: `Acil Kan İhtiyacı! ${listingData.patientName} için ${listingData.hospital} (${listingData.location}) hastanesinde ${listingData.bloodType} kan grubuna ihtiyaç var. Lütfen BloodBridge uygulamasından başvurarak destek olun. Her bağış bir hayat kurtarır!`,
       });
     } catch (error) {
       console.log('Share error:', error);
@@ -137,7 +138,7 @@ export default function ListingDetailScreen({ route, navigation }: any) {
 
     if (isMine) {
       Alert.alert(
-        '⚠️ Kendi İlanınız', 
+        'Kendi İlanınız', 
         'Kendi açtığınız kan ilanına gönüllü başvurusu yapamazsınız. Başvuran gönüllüleri incelemek ve onaylamak için aşağıdaki "İlanı Yönet ve Başvuruları İncele" butonunu kullanabilirsiniz.'
       );
       return;
@@ -156,17 +157,17 @@ export default function ListingDetailScreen({ route, navigation }: any) {
                 setIsSubmitting(true);
                 await applyAsVolunteer(listingData.id || listing.id);
                 setIsVolunteered(true);
-                Alert.alert('Harika! 🦸‍♂️', 'Başvurunuz başarıyla hastaya iletildi.');
+                Alert.alert('Harika!', 'Başvurunuz başarıyla hastaya iletildi.');
               } catch (error: any) {
                 console.error("Başvuru Hatası:", error);
                 const errMsg = `${error?.response?.data?.error || ''} ${error?.response?.data?.details || ''} ${error?.response?.data?.message || ''} ${error?.message || ''}`.toString();
                 if (errMsg.toLowerCase().includes('own') || errMsg.toLowerCase().includes('kendi') || isMine) {
-                  Alert.alert('Uyarı ⚠️', 'Kendi açtığınız kan ilanına gönüllü başvurusu yapamazsınız. İlanı yönetmek için aşağıdan İlanı Yönet ekranına geçebilirsiniz.');
+                  Alert.alert('Uyarı', 'Kendi açtığınız kan ilanına gönüllü başvurusu yapamazsınız. İlanı yönetmek için aşağıdan İlanı Yönet ekranına geçebilirsiniz.');
                 } else if (errMsg.toLowerCase().includes('already') || errMsg.toLowerCase().includes('zaten')) {
                   setIsVolunteered(true);
-                  Alert.alert('Bilgi ✅', 'Bu ilana zaten başvuru yapmışsınız. Başvurunuz hastaya iletilmiş durumdadır.');
+                  Alert.alert('Bilgi', 'Bu ilana zaten başvuru yapmışsınız. Başvurunuz hastaya iletilmiş durumdadır.');
                 } else {
-                  Alert.alert('Uyarı ⚠️', errMsg.trim() ? `Başvuru yapılamadı: ${error?.response?.data?.error || errMsg.trim()}` : 'Başvuru yapılamadı. Kendi ilanınıza başvurmaya çalışıyor veya zaten başvurmuş olabilirsiniz.');
+                  Alert.alert('Uyarı', errMsg.trim() ? `Başvuru yapılamadı: ${error?.response?.data?.error || errMsg.trim()}` : 'Başvuru yapılamadı. Kendi ilanınıza başvurmaya çalışıyor veya zaten başvurmuş olabilirsiniz.');
                 }
               } finally {
                 setIsSubmitting(false);
@@ -227,7 +228,7 @@ export default function ListingDetailScreen({ route, navigation }: any) {
         {/* Kendi İlanım Banner */}
         {isMine && (
           <View style={[styles.infoBox, { backgroundColor: '#F3E5F5', borderColor: '#9C27B0', marginBottom: 15 }]}>
-            <Text style={styles.infoIcon}>👤</Text>
+            <Ionicons name="person-circle-outline" size={32} color="#6A1B9A" style={{ marginRight: 10 }} />
             <View style={styles.infoTextContainer}>
               <Text style={[styles.infoTitle, { color: '#6A1B9A' }]}>Bu İlan Size Ait</Text>
               <Text style={styles.infoDesc}>Kendi açtığınız ilana gönüllü olamazsınız. Başvuran gönüllüleri incelemek ve onaylamak için aşağıdaki "İlanı Yönet" butonunu kullanabilirsiniz.</Text>
@@ -248,16 +249,16 @@ export default function ListingDetailScreen({ route, navigation }: any) {
 
         {/* Details Container */}
         <View style={styles.detailsContainer}>
-          <DetailRow icon="🏥" label="HASTANE" value={listingData.hospital} />
+          <DetailRow iconName="medkit-outline" label="HASTANE" value={listingData.hospital} />
           <View style={styles.divider} />
-          <DetailRow icon="📍" label="KONUM" value={listingData.location} />
+          <DetailRow iconName="location-outline" label="KONUM" value={listingData.location} />
           <View style={styles.divider} />
-          <DetailRow icon="🩸" label="GEREKEN ÜNİTE" value={`${listingData.unitsNeeded} Ünite`} />
+          <DetailRow iconName="water-outline" label="GEREKEN ÜNİTE" value={`${listingData.unitsNeeded} Ünite`} />
           <View style={styles.divider} />
-          <DetailRow icon="🕐" label="YAYINLANMA" value={listingData.timeAgo || 'Yayında'} />
+          <DetailRow iconName="time-outline" label="YAYINLANMA" value={listingData.timeAgo || 'Yayında'} />
           
           <TouchableOpacity style={styles.directionsButton} onPress={handleDirections}>
-            <Text style={styles.directionsIcon}>🧭</Text>
+            <Ionicons name="compass-outline" size={20} color="#E63946" style={{ marginRight: 6 }} />
             <Text style={styles.directionsText}>Haritada Aç / Yol Tarifi Al</Text>
           </TouchableOpacity>
         </View>
@@ -276,9 +277,12 @@ export default function ListingDetailScreen({ route, navigation }: any) {
             (currentStatus === 'Onaylandı' || currentStatus?.includes('Karşılandı')) && { backgroundColor: '#EBFBF9', borderColor: '#2EC4B6' },
             currentStatus === 'Reddedildi' && { backgroundColor: '#FFF2F2', borderColor: '#E63946' }
           ]}>
-            <Text style={styles.infoIcon}>
-              {(currentStatus === 'Onaylandı' || currentStatus?.includes('Karşılandı')) ? '🎉' : currentStatus === 'Reddedildi' ? '✕' : '✅'}
-            </Text>
+            <Ionicons 
+              name={(currentStatus === 'Onaylandı' || currentStatus?.includes('Karşılandı')) ? 'ribbon-outline' : currentStatus === 'Reddedildi' ? 'close-circle-outline' : 'checkmark-circle-outline'} 
+              size={32} 
+              color={(currentStatus === 'Onaylandı' || currentStatus?.includes('Karşılandı')) ? '#2EC4B6' : currentStatus === 'Reddedildi' ? '#E63946' : '#2EC4B6'} 
+              style={{ marginRight: 10 }} 
+            />
             <View style={styles.infoTextContainer}>
               <Text style={[
                 styles.infoTitle, 
@@ -287,11 +291,11 @@ export default function ListingDetailScreen({ route, navigation }: any) {
                 currentStatus === 'Reddedildi' && { color: '#E63946' }
               ]}>
                 {currentStatus === 'Onaylandı' || currentStatus?.includes('Onaylandı') 
-                  ? '🎉 Başvurunuz Onaylandı!' 
+                  ? 'Başvurunuz Onaylandı!' 
                   : currentStatus === 'Tamamlandı' || currentStatus?.includes('Karşılandı')
-                  ? '🏁 İhtiyaç Başarıyla Karşılandı!'
+                  ? 'İhtiyaç Başarıyla Karşılandı!'
                   : currentStatus === 'Reddedildi'
-                  ? '✕ Başvurunuz Kabul Edilemedi'
+                  ? 'Başvurunuz Kabul Edilemedi'
                   : 'Başvurunuz alındı!'}
               </Text>
               <Text style={styles.infoDesc}>
@@ -307,7 +311,7 @@ export default function ListingDetailScreen({ route, navigation }: any) {
           </View>
         ) : currentStatus === 'Tamamlandı' ? (
           <View style={[styles.infoBox, { backgroundColor: '#E8F8F5', borderColor: '#2EC4B6' }]}>
-            <Text style={styles.infoIcon}>🏁</Text>
+            <Ionicons name="flag-outline" size={32} color="#16A085" style={{ marginRight: 10 }} />
             <View style={styles.infoTextContainer}>
               <Text style={[styles.infoTitle, { color: '#16A085' }]}>İhtiyaç Karşılandı</Text>
               <Text style={styles.infoDesc}>Bu kan talebi için gerekli bağış süreci tamamlanmıştır. Duyarlılığınız ve desteğiniz için teşekkür ederiz!</Text>
@@ -315,7 +319,7 @@ export default function ListingDetailScreen({ route, navigation }: any) {
           </View>
         ) : currentStatus === 'Onaylandı' ? (
           <View style={[styles.infoBox, { backgroundColor: '#EBF5FB', borderColor: '#3498DB' }]}>
-            <Text style={styles.infoIcon}>🤝</Text>
+            <Ionicons name="people-outline" size={32} color="#2980B9" style={{ marginRight: 10 }} />
             <View style={styles.infoTextContainer}>
               <Text style={[styles.infoTitle, { color: '#2980B9' }]}>Gönüllü Bulundu / İşlemde</Text>
               <Text style={styles.infoDesc}>İlan sahibi şu an onaylanan bir gönüllü ile iletişim halinde. İhtiyacın devam etme ihtimaline karşı yedek gönüllü olarak başvurabilirsiniz.</Text>
@@ -323,7 +327,7 @@ export default function ListingDetailScreen({ route, navigation }: any) {
           </View>
         ) : (
           <View style={[styles.infoBox, styles.infoBoxNotVolunteered]}>
-            <Text style={styles.infoIcon}>♡</Text>
+            <Ionicons name="heart-outline" size={32} color="#E63946" style={{ marginRight: 10 }} />
             <View style={styles.infoTextContainer}>
               <Text style={[styles.infoTitle, styles.infoTitleNotVolunteered]}>Nasıl Yardımcı Olabilirsiniz?</Text>
               <Text style={styles.infoDesc}>Gönüllü olduğunuzda bilgileriniz hasta yakını ile paylaşılır ve sizinle iletişime geçmeleri sağlanır.</Text>
@@ -339,7 +343,10 @@ export default function ListingDetailScreen({ route, navigation }: any) {
             style={[styles.ctaButton, { backgroundColor: '#1A1A2E', borderColor: '#1A1A2E' }]} 
             onPress={() => navigation.navigate('MyListingDetail', { listing: listingData })}
           >
-            <Text style={[styles.ctaButtonText, { color: '#FFF', fontWeight: 'bold' }]}>⚙️ İlanı Yönet ve Başvuruları İncele</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Ionicons name="settings-outline" size={20} color="#FFF" style={{ marginRight: 8 }} />
+              <Text style={[styles.ctaButtonText, { color: '#FFF', fontWeight: 'bold' }]}>İlanı Yönet ve Başvuruları İncele</Text>
+            </View>
           </TouchableOpacity>
         ) : isVolunteered ? (
           <TouchableOpacity 
@@ -353,22 +360,28 @@ export default function ListingDetailScreen({ route, navigation }: any) {
           >
             <Text style={[styles.ctaButtonText, styles.ctaButtonTextVolunteered, (currentStatus === 'Onaylandı' || currentStatus?.includes('Karşılandı')) && { color: '#FFF' }]}>
               {currentStatus === 'Onaylandı' || currentStatus?.includes('Karşılandı')
-                ? '✓ Başvurunuz Onaylandı / Karşılandı'
+                ? 'Başvurunuz Onaylandı / Karşılandı'
                 : currentStatus === 'Reddedildi'
-                ? '✕ Başvuru Sonuçlandı'
-                : '✓ Başvuruldu — Geri Çek'}
+                ? 'Başvuru Sonuçlandı'
+                : 'Başvuruldu — Geri Çek'}
             </Text>
           </TouchableOpacity>
         ) : currentStatus === 'Tamamlandı' ? (
           <View style={[styles.ctaButton, { backgroundColor: '#95A5A6', borderColor: '#7F8C8D' }]}>
-            <Text style={[styles.ctaButtonText, { color: '#FFF', fontWeight: 'bold' }]}>🏁 İhtiyaç Karşılandı (Kapalı)</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Ionicons name="checkmark-circle-outline" size={20} color="#FFF" style={{ marginRight: 8 }} />
+              <Text style={[styles.ctaButtonText, { color: '#FFF', fontWeight: 'bold' }]}>İhtiyaç Karşılandı (Kapalı)</Text>
+            </View>
           </View>
         ) : currentStatus === 'Onaylandı' ? (
           <TouchableOpacity style={[styles.ctaButton, { backgroundColor: '#3498DB', borderColor: '#2980B9' }]} onPress={handleVolunteer}>
             {isSubmitting ? (
               <ActivityIndicator color="#FFF" />
             ) : (
-              <Text style={[styles.ctaButtonText, { color: '#FFF', fontWeight: 'bold' }]}>🤝 Yedek Gönüllü Ol</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Ionicons name="heart-circle-outline" size={20} color="#FFF" style={{ marginRight: 8 }} />
+                <Text style={[styles.ctaButtonText, { color: '#FFF', fontWeight: 'bold' }]}>Yedek Gönüllü Ol</Text>
+              </View>
             )}
           </TouchableOpacity>
         ) : (
@@ -376,7 +389,10 @@ export default function ListingDetailScreen({ route, navigation }: any) {
             {isSubmitting ? (
               <ActivityIndicator color="#FFF" />
             ) : (
-              <Text style={[styles.ctaButtonText, styles.ctaButtonTextNotVolunteered]}>♡ Gönüllü Ol</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Ionicons name="heart-outline" size={20} color="#FFF" style={{ marginRight: 8 }} />
+                <Text style={[styles.ctaButtonText, styles.ctaButtonTextNotVolunteered]}>Gönüllü Ol</Text>
+              </View>
             )}
           </TouchableOpacity>
         )}

@@ -2,7 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, SafeAreaView, ScrollView, StatusBar, Alert, Platform, ActivityIndicator, RefreshControl, Modal, TextInput } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { getMyApplications, getMyCreatedListings, getUserProfile, updateUserProfile, getVolunteers } from '../api/blood';
+import { changePassword } from '../api/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Ionicons } from '@expo/vector-icons';
 
 const getUrgencyColor = (urgency: string) => {
   if (urgency === 'Kritik') return '#E63946';
@@ -43,7 +45,15 @@ export default function ProfileScreen({ navigation }: any) {
   const [editPhone, setEditPhone] = useState('');
   const [editBloodType, setEditBloodType] = useState('');
   const [editCity, setEditCity] = useState('');
+  const [editFirstName, setEditFirstName] = useState('');
+  const [editLastName, setEditLastName] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
+
+  // Şifre Değiştirme Modalı State'leri
+  const [isPasswordModalVisible, setPasswordModalVisible] = useState(false);
+  const [oldPassword, setOldPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
 
   // 2-B: Telefon Numarası Formatlama (05XX XXX XX XX)
   const formatEditPhone = (text: string) => {
@@ -229,6 +239,8 @@ export default function ProfileScreen({ navigation }: any) {
       setIsUpdating(true);
       
       const updateData = {
+        first_name: editFirstName.trim(),
+        last_name: editLastName.trim(),
         phone: editPhone,
         blood_type: formattedBloodType, // Kullanıcı küçük harf yazsa bile büyütüp yolluyoruz
         city: editCity.trim()
@@ -247,7 +259,33 @@ export default function ProfileScreen({ navigation }: any) {
     }
   };
 
+  const handleChangePassword = async () => {
+    if (!oldPassword || !newPassword) {
+      Alert.alert("Uyarı", "Lütfen mevcut ve yeni şifrenizi giriniz.");
+      return;
+    }
+    if (newPassword.length < 6) {
+      Alert.alert("Uyarı", "Yeni şifre en az 6 karakter olmalıdır.");
+      return;
+    }
+    try {
+      setIsChangingPassword(true);
+      const res = await changePassword(oldPassword, newPassword);
+      Alert.alert("Başarılı", res.message || "Şifreniz başarıyla güncellendi.");
+      setPasswordModalVisible(false);
+      setOldPassword('');
+      setNewPassword('');
+    } catch (error: any) {
+      const msg = error?.response?.data?.error || "Şifre değiştirilemedi.";
+      Alert.alert("Hata", msg);
+    } finally {
+      setIsChangingPassword(false);
+    }
+  };
+
   const openEditModal = () => {
+    setEditFirstName(userData?.first_name || userData?.firstName || '');
+    setEditLastName(userData?.last_name || userData?.lastName || '');
     formatEditPhone(userData?.phone || '');
     setEditBloodType(userData?.bloodType || '');
     setEditCity(userData?.city || '');
@@ -293,8 +331,18 @@ export default function ProfileScreen({ navigation }: any) {
         <Text style={{color: '#888', fontStyle: 'italic', paddingVertical: 10}}>Geçmiş bağış kayıtlarınız burada listelenecektir.</Text>
       </View>
 
+      <TouchableOpacity style={styles.changePasswordButton} onPress={() => setPasswordModalVisible(true)}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+          <Ionicons name="lock-closed-outline" size={18} color="#FFF" style={{ marginRight: 6 }} />
+          <Text style={styles.changePasswordButtonText}>Şifre Değiştir</Text>
+        </View>
+      </TouchableOpacity>
+
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-        <Text style={styles.logoutButtonText}>Çıkış Yap</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+          <Ionicons name="log-out-outline" size={18} color="#E63946" style={{ marginRight: 6 }} />
+          <Text style={styles.logoutButtonText}>Çıkış Yap</Text>
+        </View>
       </TouchableOpacity>
     </View>
   );
@@ -319,7 +367,7 @@ export default function ProfileScreen({ navigation }: any) {
           {appliedListings.length === 0 ? (
             <View style={styles.emptyContainer}>
               <View style={styles.emptyIconCircle}>
-                <Text style={styles.emptyIconText}>🤝</Text>
+                <Ionicons name="heart-outline" size={40} color="#E63946" />
               </View>
               <Text style={styles.emptyTitle}>Henüz Başvurunuz Yok</Text>
               <Text style={styles.emptySubText}>
@@ -329,7 +377,10 @@ export default function ProfileScreen({ navigation }: any) {
                 style={styles.emptyActionButton} 
                 onPress={() => navigation.navigate('HomeTab')}
               >
-                <Text style={styles.emptyActionText}>❤️ Acil İlanlara Göz At</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <Ionicons name="search-outline" size={18} color="#FFF" style={{ marginRight: 6 }} />
+                  <Text style={styles.emptyActionText}>Acil İlanlara Göz At</Text>
+                </View>
               </TouchableOpacity>
             </View>
           ) : (
@@ -353,7 +404,7 @@ export default function ProfileScreen({ navigation }: any) {
           {createdListings.length === 0 ? (
             <View style={styles.emptyContainer}>
               <View style={styles.emptyIconCircle}>
-                <Text style={styles.emptyIconText}>📢</Text>
+                <Ionicons name="megaphone-outline" size={40} color="#E63946" />
               </View>
               <Text style={styles.emptyTitle}>Açılmış İlanınız Yok</Text>
               <Text style={styles.emptySubText}>
@@ -363,7 +414,10 @@ export default function ProfileScreen({ navigation }: any) {
                 style={styles.emptyActionButton} 
                 onPress={() => navigation.navigate('CreateListing')}
               >
-                <Text style={styles.emptyActionText}>+ İlk Kan Talebini Oluştur</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <Ionicons name="add-circle-outline" size={18} color="#FFF" style={{ marginRight: 6 }} />
+                  <Text style={styles.emptyActionText}>İlk Kan Talebini Oluştur</Text>
+                </View>
               </TouchableOpacity>
             </View>
           ) : (
@@ -397,7 +451,10 @@ export default function ProfileScreen({ navigation }: any) {
         <View style={styles.headerTop}>
           <Text style={styles.headerTitle}>Profil</Text>
           <TouchableOpacity style={styles.editButton} onPress={openEditModal}>
-            <Text style={styles.editButtonText}>Düzenle</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Ionicons name="create-outline" size={16} color="#FFF" style={{ marginRight: 4 }} />
+              <Text style={styles.editButtonText}>Düzenle</Text>
+            </View>
           </TouchableOpacity>
         </View>
         <View style={styles.profileInfo}>
@@ -433,6 +490,22 @@ export default function ProfileScreen({ navigation }: any) {
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Profili Düzenle</Text>
             
+            <Text style={styles.inputLabel}>Ad</Text>
+            <TextInput 
+              style={styles.modalInput} 
+              value={editFirstName} 
+              onChangeText={setEditFirstName}
+              placeholder="Adınız"
+            />
+
+            <Text style={styles.inputLabel}>Soyad</Text>
+            <TextInput 
+              style={styles.modalInput} 
+              value={editLastName} 
+              onChangeText={setEditLastName}
+              placeholder="Soyadınız"
+            />
+
             <Text style={styles.inputLabel}>Telefon Numarası</Text>
             <TextInput 
               style={styles.modalInput} 
@@ -477,6 +550,46 @@ export default function ProfileScreen({ navigation }: any) {
         </View>
       </Modal>
 
+      {/* ŞİFRE DEĞİŞTİRME MODALI */}
+      <Modal visible={isPasswordModalVisible} animationType="fade" transparent={true}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>🔐 Şifre Değiştir</Text>
+            
+            <Text style={styles.inputLabel}>Mevcut Şifre</Text>
+            <TextInput 
+              style={styles.modalInput} 
+              value={oldPassword} 
+              onChangeText={setOldPassword}
+              secureTextEntry={true}
+              placeholder="••••••••"
+            />
+
+            <Text style={styles.inputLabel}>Yeni Şifre</Text>
+            <TextInput 
+              style={styles.modalInput} 
+              value={newPassword} 
+              onChangeText={setNewPassword}
+              secureTextEntry={true}
+              placeholder="En az 6 karakter"
+            />
+
+            <View style={styles.modalButtons}>
+              <TouchableOpacity style={styles.modalCancelBtn} onPress={() => setPasswordModalVisible(false)} disabled={isChangingPassword}>
+                <Text style={styles.modalCancelBtnText}>İptal</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.modalSaveBtn} onPress={handleChangePassword} disabled={isChangingPassword}>
+                {isChangingPassword ? (
+                  <ActivityIndicator color="#FFF" size="small" />
+                ) : (
+                  <Text style={styles.modalSaveBtnText}>Güncelle</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
     </SafeAreaView>
   );
 }
@@ -514,6 +627,8 @@ const styles = StyleSheet.create({
   statCard: { flex: 1, backgroundColor: '#FFF', borderRadius: 12, padding: 16, alignItems: 'center', marginHorizontal: 4, borderWidth: 1, borderColor: '#E0E0E0' },
   statValue: { fontSize: 20, fontWeight: 'bold', color: '#E63946', marginBottom: 4 },
   statLabel: { fontSize: 12, color: '#666' },
+  changePasswordButton: { padding: 16, borderRadius: 12, alignItems: 'center', backgroundColor: '#F3F4F6', borderWidth: 1, borderColor: '#D1D5DB', marginTop: 8, marginBottom: 8 },
+  changePasswordButtonText: { color: '#1F2937', fontSize: 16, fontWeight: '600' },
   logoutButton: { padding: 16, borderRadius: 12, alignItems: 'center', borderWidth: 1, borderColor: '#E63946', marginTop: 8, marginBottom: 24 },
   logoutButtonText: { color: '#E63946', fontSize: 16, fontWeight: '600' },
   subTabContainer: { flexDirection: 'row', backgroundColor: '#E0E0E0', borderRadius: 8, padding: 4, marginBottom: 16 },

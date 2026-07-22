@@ -12,16 +12,17 @@ import {
   Alert,
 } from 'react-native';
 import { getNotifications, markNotificationAsRead, getMyBloodRequests } from '../api/blood';
+import { Ionicons } from '@expo/vector-icons';
 
 const getIconForType = (type: string) => {
   switch (type) {
-    case 'volunteer_applied': return '🙋';
-    case 'application_approved': return '✅';
-    case 'application_rejected': return '❌';
-    case 'urgent_need': return '🚨';
-    case 'reminder': return '🩸';
-    case 'thank_you': return '💖';
-    default: return '🔔';
+    case 'volunteer_applied': return 'person-add-outline';
+    case 'application_approved': return 'checkmark-circle-outline';
+    case 'application_rejected': return 'close-circle-outline';
+    case 'urgent_need': return 'alert-circle-outline';
+    case 'reminder': return 'water-outline';
+    case 'thank_you': return 'heart-outline';
+    default: return 'notifications-outline';
   }
 };
 
@@ -33,19 +34,19 @@ const translateNotification = (type: string, title: string, message: string) => 
   const lowerType = (type || '').toLowerCase();
 
   if (lowerType.includes('approved') || lowerTitle.includes('approved') || lowerTitle.includes('accepted') || lowerTitle.includes('onay') || lowerMsg.includes('approved') || lowerMsg.includes('accepted')) {
-    trTitle = '🎉 Başvurunuz Onaylandı!';
+    trTitle = 'Başvurunuz Onaylandı!';
     trMessage = 'Gönüllü başvurunuz ilan sahibi tarafından onaylandı. Sizinle iletişime geçecekler.';
   } else if (lowerType.includes('rejected') || lowerTitle.includes('rejected') || lowerTitle.includes('red') || lowerMsg.includes('rejected')) {
-    trTitle = '✕ Başvurunuz Sonuçlandı';
+    trTitle = 'Başvurunuz Sonuçlandı';
     trMessage = 'Bu ilan için başka bir gönüllü ile ilerlenmiş olabilir. İlginiz için çok teşekkür ederiz.';
   } else if (lowerType.includes('volunteer_applied') || lowerTitle.includes('new volunteer') || lowerTitle.includes('yeni gönüllü') || lowerMsg.includes('you have a new volunteer') || lowerMsg.includes('someone applied')) {
-    trTitle = '🙋 Yeni Gönüllü Başvurusu!';
+    trTitle = 'Yeni Gönüllü Başvurusu!';
     trMessage = 'İlanınıza yeni bir gönüllü başvurdu. İletişim bilgilerini görmek ve onaylamak için dokunun.';
   } else if (lowerType.includes('urgent') || lowerTitle.includes('urgent') || lowerTitle.includes('acil')) {
-    trTitle = '🚨 Acil Kan İhtiyacı!';
+    trTitle = 'Acil Kan İhtiyacı!';
     trMessage = 'Bölgenizde acil kan ihtiyacı olan bir hasta var. Destek olmak için dokunun.';
   } else if (lowerType.includes('completed') || lowerTitle.includes('completed') || lowerTitle.includes('tamamlandı')) {
-    trTitle = '🏁 Kan İhtiyacı Karşılandı';
+    trTitle = 'Kan İhtiyacı Karşılandı';
     trMessage = 'Destek olduğunuz kan talebi başarıyla tamamlandı.';
   }
 
@@ -272,7 +273,7 @@ export default function NotificationsScreen({ navigation }: any) {
         ) : notifications.length === 0 ? (
           <View style={styles.emptyContainer}>
             <View style={styles.emptyIconCircle}>
-              <Text style={styles.emptyIconText}>🔔</Text>
+              <Ionicons name="notifications-outline" size={40} color="#E63946" />
             </View>
             <Text style={styles.emptyTitle}>Henüz Yeni Bildirim Yok</Text>
             <Text style={styles.emptySubText}>
@@ -282,7 +283,10 @@ export default function NotificationsScreen({ navigation }: any) {
               style={styles.emptyActionButton} 
               onPress={() => navigation.navigate('HomeTab')}
             >
-              <Text style={styles.emptyActionText}>🏠 Aktif İlanlara Göz At</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Ionicons name="home-outline" size={18} color="#FFF" style={{ marginRight: 6 }} />
+                <Text style={styles.emptyActionText}>Aktif İlanlara Göz At</Text>
+              </View>
             </TouchableOpacity>
           </View>
         ) : (
@@ -300,7 +304,7 @@ export default function NotificationsScreen({ navigation }: any) {
               {!notification.isRead && <View style={styles.unreadDot} />}
 
               <View style={[styles.iconContainer, { backgroundColor: getTypeColor(notification.type) + '18' }]}>
-                <Text style={styles.iconText}>{notification.icon}</Text>
+                <Ionicons name={notification.icon || 'notifications-outline'} size={24} color={getTypeColor(notification.type)} />
               </View>
 
               <View style={styles.notificationContent}>

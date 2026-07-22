@@ -17,6 +17,7 @@ import {
 } from 'react-native';
 import { createBloodRequest } from '../api/blood';
 import { TURKEY_CITIES } from '../constants/cities';
+import { Ionicons } from '@expo/vector-icons';
 
 const BLOOD_TYPES = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', '0+', '0-'];
 const URGENCY_LEVELS = ['Normal', 'Acil', 'Kritik'];
@@ -65,7 +66,7 @@ export default function CreateListingScreen({ navigation }: any) {
       });
 
       Alert.alert(
-        'Başarılı 🎉', 
+        'Başarılı', 
         'İlanınız başarıyla oluşturuldu! Profil > İlanlarım (Açtıklarım) sekmesinden gelen gönüllü başvurularını anlık takip edip onaylayabilirsiniz.', 
         [
           { 
@@ -97,7 +98,7 @@ export default function CreateListingScreen({ navigation }: any) {
       
       <View style={styles.header}>
         <TouchableOpacity style={styles.closeButton} onPress={() => navigation.goBack()}>
-          <Text style={styles.closeIcon}>✕</Text>
+          <Ionicons name="close-outline" size={26} color="#333" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Yeni İlan</Text>
         <View style={{ width: 40 }} />
@@ -243,7 +244,7 @@ export default function CreateListingScreen({ navigation }: any) {
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Şehir Seçin</Text>
               <TouchableOpacity onPress={() => setCityModalVisible(false)} style={{ padding: 6 }}>
-                <Text style={styles.modalClose}>✕</Text>
+                <Ionicons name="close-outline" size={26} color="#333" />
               </TouchableOpacity>
             </View>
             <TextInput

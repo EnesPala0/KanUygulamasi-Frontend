@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { loginUser } from '../api/auth';
+import { loginUser, forgotPassword } from '../api/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Ionicons } from '@expo/vector-icons';
 import { 
   StyleSheet, 
   Text, 
@@ -10,7 +11,9 @@ import {
   KeyboardAvoidingView, 
   Platform,
   SafeAreaView,
-  Alert
+  Alert,
+  Modal,
+  ActivityIndicator
 } from 'react-native';
 
 export default function LoginScreen({ navigation }: any) {
@@ -18,31 +21,52 @@ export default function LoginScreen({ navigation }: any) {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-const handleLogin = async () => {
-  if (!email || !password) {
-    Alert.alert('Hata', 'Lütfen e-posta ve şifrenizi girin.');
-    return;
-  }
+  // Şifremi unuttum modal states
+  const [isForgotModalVisible, setForgotModalVisible] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotLoading, setForgotLoading] = useState(false);
 
-  try {
-    // 1. Backend'den yanıtı alıyoruz
-    const data = await loginUser(email, password);
-    console.log("Sunucudan Gelen Veri:", data);
-    
-    // 2. İŞTE YENİ EKLENEN KISIM: Token'ı cüzdana (hafızaya) atıyoruz!
-    // Go'dan dönen JSON'da token varsa, bunu 'userToken' adıyla telefona kaydet
-    if (data.token) {
-       await AsyncStorage.setItem('userToken', data.token);
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert('Hata', 'Lütfen e-posta ve şifrenizi girin.');
+      return;
     }
-    
-    // 3. İçeriye yönlendir ve Login ekranını geçmişten temizle
-    navigation.reset({ index: 0, routes: [{ name: 'Main' }] }); 
 
-  } catch (error) {
-    console.error("API Hatası:", error);
-    Alert.alert('Giriş Başarısız', 'E-posta veya şifre hatalı.');
-  }
-};
+    try {
+      const data = await loginUser(email, password);
+      console.log("Sunucudan Gelen Veri:", data);
+      
+      if (data.token) {
+         await AsyncStorage.setItem('userToken', data.token);
+      }
+      
+      navigation.reset({ index: 0, routes: [{ name: 'Main' }] }); 
+
+    } catch (error) {
+      console.error("API Hatası:", error);
+      Alert.alert('Giriş Başarısız', 'E-posta veya şifre hatalı.');
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!forgotEmail || !forgotEmail.includes('@')) {
+      Alert.alert('Uyarı', 'Lütfen geçerli bir e-posta adresi giriniz.');
+      return;
+    }
+    try {
+      setForgotLoading(true);
+      const res = await forgotPassword(forgotEmail.trim());
+      setForgotModalVisible(false);
+      setForgotEmail('');
+      Alert.alert('Talimat Gönderildi', res.message || 'Şifre sıfırlama talimatları e-posta adresinize iletildi.');
+    } catch (error: any) {
+      console.log('Forgot password error:', error);
+      const msg = error?.response?.data?.error || 'Bu e-posta adresiyle kayıtlı bir hesap bulunamadı.';
+      Alert.alert('Hata', msg);
+    } finally {
+      setForgotLoading(false);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -53,7 +77,7 @@ const handleLogin = async () => {
         {/* Üst Kırmızı Alan (Header) */}
         <View style={styles.headerContainer}>
           <View style={styles.logoCircle}>
-            <Text style={styles.logoText}>🩸</Text>
+            <Ionicons name="water" size={40} color="#E63946" />
           </View>
           <Text style={styles.appName}>BloodBridge</Text>
           <Text style={styles.welcomeText}>Hoş Geldiniz</Text>
@@ -87,9 +111,20 @@ const handleLogin = async () => {
               style={styles.eyeButton} 
               onPress={() => setShowPassword(!showPassword)}
             >
-              <Text style={styles.eyeIcon}>{showPassword ? '👁️' : '🙈'}</Text>
+              <Ionicons name={showPassword ? 'eye-outline' : 'eye-off-outline'} size={22} color="#888" />
             </TouchableOpacity>
           </View>
+
+          {/* Şifremi Unuttum Linki */}
+          <TouchableOpacity 
+            style={styles.forgotContainer} 
+            onPress={() => {
+              setForgotEmail(email);
+              setForgotModalVisible(true);
+            }}
+          >
+            <Text style={styles.forgotText}>Şifremi Unuttum?</Text>
+          </TouchableOpacity>
 
           {/* Login Butonu */}
           <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
@@ -105,6 +140,55 @@ const handleLogin = async () => {
           </View>
         </View>
       </KeyboardAvoidingView>
+
+      {/* Şifremi Unuttum Modalı */}
+      <Modal
+        visible={isForgotModalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setForgotModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>🔐 Şifremi Unuttum</Text>
+            <Text style={styles.modalSubText}>
+              Hesabınıza bağlı e-posta adresini girin. Size şifre sıfırlama talimatlarını gönderelim.
+            </Text>
+            
+            <TextInput
+              style={styles.modalInput}
+              placeholder="E-posta adresiniz"
+              placeholderTextColor="#A0A0A0"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              value={forgotEmail}
+              onChangeText={setForgotEmail}
+            />
+
+            <View style={styles.modalButtons}>
+              <TouchableOpacity 
+                style={styles.modalCancelButton}
+                onPress={() => setForgotModalVisible(false)}
+                disabled={forgotLoading}
+              >
+                <Text style={styles.modalCancelText}>Vazgeç</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={styles.modalSubmitButton}
+                onPress={handleForgotPassword}
+                disabled={forgotLoading}
+              >
+                {forgotLoading ? (
+                  <ActivityIndicator color="#FFF" size="small" />
+                ) : (
+                  <Text style={styles.modalSubmitText}>Sıfırla</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -227,6 +311,86 @@ const styles = StyleSheet.create({
   signupText: {
     color: '#E63946',
     fontSize: 14,
+    fontWeight: 'bold',
+  },
+  forgotContainer: {
+    alignSelf: 'flex-end',
+    marginBottom: 15,
+    marginTop: -5,
+  },
+  forgotText: {
+    color: '#457B9D',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.55)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 25,
+  },
+  modalCard: {
+    width: '100%',
+    backgroundColor: '#FFF',
+    borderRadius: 20,
+    padding: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 10,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#1A1A2E',
+    marginBottom: 10,
+  },
+  modalSubText: {
+    fontSize: 14,
+    color: '#666',
+    lineHeight: 20,
+    marginBottom: 18,
+  },
+  modalInput: {
+    backgroundColor: '#F7F9FC',
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    borderRadius: 12,
+    padding: 15,
+    fontSize: 16,
+    color: '#333',
+    marginBottom: 20,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  modalCancelButton: {
+    flex: 1,
+    backgroundColor: '#F0F2F5',
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginRight: 8,
+  },
+  modalCancelText: {
+    color: '#666',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  modalSubmitButton: {
+    flex: 1.2,
+    backgroundColor: '#E63946',
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginLeft: 8,
+  },
+  modalSubmitText: {
+    color: '#FFF',
+    fontSize: 16,
     fontWeight: 'bold',
   },
 });

@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, TouchableOpacity, FlatList, SafeAreaView, Statu
 import { useFocusEffect } from '@react-navigation/native';
 import { getAllBloodRequests, getNotifications, getUserProfile, getMyApplications } from '../api/blood';
 import { TURKEY_CITIES } from '../constants/cities';
+import { Ionicons } from '@expo/vector-icons';
 
 const getUrgencyColor = (urgency: string) => {
   if (urgency === 'Kritik') return '#E63946';
@@ -97,13 +98,13 @@ export default function HomeScreen({ navigation }: any) {
 
         if (rawStatus === 'resolved' || rawStatus === 'completed' || rawStatus === 'tamamlandı' || rawStatus === 'karşılandı' || rawStatus === 'closed') {
           computedStatus = 'Tamamlandı';
-          displayStatusText = 'İhtiyaç Karşılandı ✅';
+          displayStatusText = 'İhtiyaç Karşılandı';
         } else if (hasApprovedVolunteer || rawStatus === 'approved' || rawStatus === 'accepted' || rawStatus === 'onaylandı' || rawStatus === 'kabul' || rawStatus === 'in_progress') {
           computedStatus = 'Onaylandı';
-          displayStatusText = 'Gönüllü Bulundu 🤝';
+          displayStatusText = 'Gönüllü Bulundu';
         } else if (rawStatus === 'cancelled' || rawStatus === 'iptal') {
           computedStatus = 'İptal Edildi';
-          displayStatusText = 'İptal Edildi ✕';
+          displayStatusText = 'İptal Edildi';
         }
 
         return {
@@ -163,7 +164,10 @@ export default function HomeScreen({ navigation }: any) {
           </View>
           <View>
             <Text style={styles.patientName}>{item.patientName}</Text>
-            <Text style={styles.hospital}>📍 {item.hospital}, {item.location}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 2 }}>
+              <Ionicons name="location-outline" size={13} color="#666" style={{ marginRight: 3 }} />
+              <Text style={styles.hospital}>{item.hospital}, {item.location}</Text>
+            </View>
           </View>
         </View>
         <View style={[styles.urgencyBadge, { borderColor: getUrgencyColor(item.urgency) }]}>
@@ -172,7 +176,10 @@ export default function HomeScreen({ navigation }: any) {
         </View>
       </View>
       <View style={styles.cardFooter}>
-        <Text style={styles.footerText}>🩸 {item.unitsNeeded} Ünite</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <Ionicons name="water-outline" size={15} color="#E63946" style={{ marginRight: 4 }} />
+          <Text style={styles.footerText}>{item.unitsNeeded} Ünite</Text>
+        </View>
         <View style={[
           styles.statusBadgeHome,
           item.status === 'Tamamlandı' ? { backgroundColor: '#E8F8F5', borderColor: '#2EC4B6' } :
@@ -180,18 +187,36 @@ export default function HomeScreen({ navigation }: any) {
           item.status === 'İptal Edildi' ? { backgroundColor: '#FDEDEC', borderColor: '#E63946' } :
           { backgroundColor: '#F4F6F7', borderColor: '#D5D8DC' }
         ]}>
-          <Text style={[
-            styles.statusTextHome,
-            item.status === 'Tamamlandı' ? { color: '#16A085', fontWeight: 'bold' } :
-            item.status === 'Onaylandı' ? { color: '#2980B9', fontWeight: 'bold' } :
-            item.status === 'İptal Edildi' ? { color: '#C0392B', fontWeight: 'bold' } :
-            { color: '#5D6D7E', fontWeight: '600' }
-          ]}>
-            {item.status === 'Tamamlandı' ? '✅ İhtiyaç Karşılandı' :
-             item.status === 'Onaylandı' ? '🤝 Gönüllü Bulundu' :
-             item.status === 'İptal Edildi' ? '✕ İptal Edildi' :
-             '🟢 Yayında (Aktif)'}
-          </Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Ionicons 
+              name={
+                item.status === 'Tamamlandı' ? 'checkmark-circle-outline' :
+                item.status === 'Onaylandı' ? 'people-outline' :
+                item.status === 'İptal Edildi' ? 'close-circle-outline' :
+                'pulse-outline'
+              } 
+              size={13} 
+              color={
+                item.status === 'Tamamlandı' ? '#16A085' :
+                item.status === 'Onaylandı' ? '#2980B9' :
+                item.status === 'İptal Edildi' ? '#C0392B' :
+                '#5D6D7E'
+              } 
+              style={{ marginRight: 4 }} 
+            />
+            <Text style={[
+              styles.statusTextHome,
+              item.status === 'Tamamlandı' ? { color: '#16A085', fontWeight: 'bold' } :
+              item.status === 'Onaylandı' ? { color: '#2980B9', fontWeight: 'bold' } :
+              item.status === 'İptal Edildi' ? { color: '#C0392B', fontWeight: 'bold' } :
+              { color: '#5D6D7E', fontWeight: '600' }
+            ]}>
+              {item.status === 'Tamamlandı' ? 'İhtiyaç Karşılandı' :
+               item.status === 'Onaylandı' ? 'Gönüllü Bulundu' :
+               item.status === 'İptal Edildi' ? 'İptal Edildi' :
+               'Yayında (Aktif)'}
+            </Text>
+          </View>
         </View>
       </View>
     </TouchableOpacity>
@@ -209,7 +234,7 @@ export default function HomeScreen({ navigation }: any) {
           style={styles.bellButton}
           onPress={() => navigation.navigate('Notifications')}
         >
-          <Text style={styles.bellIcon}>🔔</Text>
+          <Ionicons name="notifications-outline" size={24} color="#333" />
           {unreadCount > 0 && (
             <View style={styles.badge}>
               <Text style={styles.badgeText}>{unreadCount > 99 ? '99+' : unreadCount}</Text>
@@ -223,7 +248,10 @@ export default function HomeScreen({ navigation }: any) {
       <View style={styles.filtersContainerAll}>
         {/* Akıllı Şehir/Konum Seçici Bar */}
         <View style={styles.cityFilterRow}>
-          <Text style={styles.cityFilterLabel}>📍 Şehir:</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 6 }}>
+            <Ionicons name="location-outline" size={16} color="#444" style={{ marginRight: 3 }} />
+            <Text style={styles.cityFilterLabel}>Şehir:</Text>
+          </View>
           <TouchableOpacity 
             style={[styles.cityChipButton, activeCity !== 'Tümü' && styles.cityChipButtonActive]}
             onPress={() => setCityModalVisible(true)}
@@ -236,7 +264,7 @@ export default function HomeScreen({ navigation }: any) {
                 style={styles.cityChipClear} 
                 onPress={() => setActiveCity('Tümü')}
               >
-                <Text style={styles.cityChipClearText}>✕</Text>
+                <Ionicons name="close-circle" size={16} color="#FFF" style={{ marginLeft: 4 }} />
               </TouchableOpacity>
             )}
           </TouchableOpacity>
@@ -302,7 +330,7 @@ export default function HomeScreen({ navigation }: any) {
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <View style={styles.emptyIconCircle}>
-                <Text style={styles.emptyIconText}>🩸</Text>
+                <Ionicons name="water-outline" size={40} color="#E63946" />
               </View>
               <Text style={styles.emptyTitle}>
                 {(activeFilter !== 'Tümü' || activeBloodType !== 'Tümü' || activeCity !== 'Tümü') 
@@ -323,14 +351,20 @@ export default function HomeScreen({ navigation }: any) {
                     setActiveCity('Tümü');
                   }}
                 >
-                  <Text style={styles.emptyActionText}>🔄 Filtreleri Sıfırla</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Ionicons name="refresh-outline" size={18} color="#FFF" style={{ marginRight: 6 }} />
+                    <Text style={styles.emptyActionText}>Filtreleri Sıfırla</Text>
+                  </View>
                 </TouchableOpacity>
               ) : (
                 <TouchableOpacity 
                   style={styles.emptyActionButton} 
                   onPress={() => navigation.navigate('CreateListing')}
                 >
-                  <Text style={styles.emptyActionText}>📢 İlk Kan Talebini Oluştur</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Ionicons name="megaphone-outline" size={18} color="#FFF" style={{ marginRight: 6 }} />
+                    <Text style={styles.emptyActionText}>İlk Kan Talebini Oluştur</Text>
+                  </View>
                 </TouchableOpacity>
               )}
             </View>
@@ -361,7 +395,7 @@ export default function HomeScreen({ navigation }: any) {
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Filtre için Şehir Seçin</Text>
               <TouchableOpacity onPress={() => setCityModalVisible(false)} style={{ padding: 6 }}>
-                <Text style={styles.modalClose}>✕</Text>
+                <Ionicons name="close-outline" size={26} color="#333" />
               </TouchableOpacity>
             </View>
             <TextInput

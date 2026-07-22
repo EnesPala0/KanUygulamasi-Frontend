@@ -5,6 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { navigationRef } from './src/navigation/navigationRef';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Ionicons } from '@expo/vector-icons';
 
 // Ekranlar
 import LoginScreen from './src/screens/LoginScreen';
@@ -73,20 +74,20 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
               activeOpacity={0.8}
             >
               <View style={tabStyles.createButton}>
-                <Text style={tabStyles.createText}>+</Text>
+                <Ionicons name="add" size={32} color="#FFF" />
               </View>
             </TouchableOpacity>
           );
         }
 
         // Normal tab butonları
-        let icon = '';
+        let iconName: any = 'home-outline';
         let label = '';
         if (route.name === 'HomeTab') {
-          icon = '🏠';
+          iconName = isFocused ? 'home' : 'home-outline';
           label = 'Ana Sayfa';
         } else if (route.name === 'ProfileTab') {
-          icon = '👤';
+          iconName = isFocused ? 'person' : 'person-outline';
           label = 'Profil';
         }
 
@@ -97,7 +98,7 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
             style={tabStyles.tab}
             activeOpacity={0.7}
           >
-            <Text style={tabStyles.tabIcon}>{icon}</Text>
+            <Ionicons name={iconName} size={24} color={isFocused ? '#E63946' : '#999'} style={{ marginBottom: 2 }} />
             <Text style={[tabStyles.tabLabel, isFocused && tabStyles.tabLabelActive]}>
               {label}
             </Text>
@@ -152,7 +153,7 @@ function SplashScreen({ navigation }: any) {
   return (
     <View style={splashStyles.container}>
       <View style={splashStyles.logoCircle}>
-        <Text style={splashStyles.logoText}>🩸</Text>
+        <Ionicons name="water" size={44} color="#E63946" />
       </View>
       <Text style={splashStyles.appName}>BloodBridge</Text>
       <ActivityIndicator size="large" color="#FFF" style={{ marginTop: 25 }} />

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, SafeAreaView, ScrollView, StatusBar, Alert, Linking, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, SafeAreaView, ScrollView, StatusBar, Alert, Linking, ActivityIndicator, Modal, TextInput } from 'react-native';
 import { getVolunteers, acceptVolunteer, rejectVolunteer, completeBloodRequest, deleteBloodRequest, resetVolunteer, updateBloodRequest, getBloodRequestById } from '../api/blood';
+import { Ionicons } from '@expo/vector-icons';
 
 const getBloodTypeBgColor = (bloodType: string) => {
   if (bloodType.startsWith('A') && !bloodType.startsWith('AB')) return '#E63946';
@@ -26,6 +27,84 @@ export default function MyListingDetailScreen({ route, navigation }: any) {
 
   const [volunteerStatuses, setVolunteerStatuses] = useState<Record<string, string>>({});
 
+  const [listingData, setListingData] = useState({
+    hospital: listing.hospital || listing.hospital_name || '',
+    bloodType: listing.bloodType || listing.required_blood_type || '',
+    unitsNeeded: listing.unitsNeeded || listing.required_units || 1,
+    city: listing.city || '',
+    district: listing.district || '',
+    location: listing.location || (listing.district ? `${listing.district}, ${listing.city}` : listing.city || ''),
+    urgency: listing.urgency || listing.urgency_level || 'Acil',
+    medicalNote: listing.medicalNote || listing.medical_note || '',
+    timeAgo: listing.timeAgo || 'Yayında',
+  });
+
+  const [isEditModalVisible, setEditModalVisible] = useState(false);
+  const [editHospital, setEditHospital] = useState('');
+  const [editUnits, setEditUnits] = useState('');
+  const [editBloodType, setEditBloodType] = useState('');
+  const [editCity, setEditCity] = useState('');
+  const [editDistrict, setEditDistrict] = useState('');
+  const [editUrgency, setEditUrgency] = useState('');
+  const [editMedicalNote, setEditMedicalNote] = useState('');
+  const [isUpdatingListing, setIsUpdatingListing] = useState(false);
+
+  const openEditListingModal = () => {
+    setEditHospital(listingData.hospital);
+    setEditUnits((listingData.unitsNeeded || 1).toString());
+    setEditBloodType(listingData.bloodType);
+    setEditCity(listingData.city);
+    setEditDistrict(listingData.district);
+    setEditUrgency(listingData.urgency);
+    setEditMedicalNote(listingData.medicalNote);
+    setEditModalVisible(true);
+  };
+
+  const handleUpdateListing = async () => {
+    if (!editHospital.trim() || !editBloodType.trim() || !editUnits.trim()) {
+      Alert.alert("Uyarı", "Hastane adı, kan grubu ve ünite sayısı zorunludur.");
+      return;
+    }
+    const unitsNum = parseInt(editUnits, 10);
+    if (isNaN(unitsNum) || unitsNum <= 0) {
+      Alert.alert("Uyarı", "Lütfen geçerli bir ünite sayısı giriniz.");
+      return;
+    }
+    try {
+      setIsUpdatingListing(true);
+      const updatePayload = {
+        hospital_name: editHospital.trim(),
+        required_blood_type: editBloodType.trim().toUpperCase(),
+        required_units: unitsNum,
+        city: editCity.trim(),
+        district: editDistrict.trim(),
+        urgency_level: editUrgency.trim() || 'Acil',
+        medical_note: editMedicalNote.trim()
+      };
+      await updateBloodRequest(listing.id, updatePayload);
+      
+      const updatedLocation = editDistrict.trim() ? `${editDistrict.trim()}, ${editCity.trim()}` : editCity.trim();
+      setListingData(prev => ({
+        ...prev,
+        hospital: editHospital.trim(),
+        bloodType: editBloodType.trim().toUpperCase(),
+        unitsNeeded: unitsNum,
+        city: editCity.trim(),
+        district: editDistrict.trim(),
+        location: updatedLocation,
+        urgency: editUrgency.trim() || 'Acil',
+        medicalNote: editMedicalNote.trim()
+      }));
+      setEditModalVisible(false);
+      Alert.alert("Başarılı", "İlanınız başarıyla güncellendi!");
+    } catch (err: any) {
+      console.error("İlan güncellenemedi:", err);
+      Alert.alert("Hata", "İlan güncellenirken bir sorun oluştu.");
+    } finally {
+      setIsUpdatingListing(false);
+    }
+  };
+
   useEffect(() => {
     const fetchVolunteers = async () => {
       try {
@@ -35,6 +114,20 @@ export default function MyListingDetailScreen({ route, navigation }: any) {
           const reqRes = await getBloodRequestById(listing.id).catch(() => null);
           if (reqRes) {
             const freshReq = reqRes.blood_request || (reqRes.data && reqRes.data.blood_request) || reqRes.data || reqRes;
+            if (freshReq && freshReq.hospital_name) {
+              const freshLoc = freshReq.district ? `${freshReq.district}, ${freshReq.city}` : (freshReq.city || '');
+              setListingData(prev => ({
+                ...prev,
+                hospital: freshReq.hospital_name || prev.hospital,
+                bloodType: freshReq.required_blood_type || prev.bloodType,
+                unitsNeeded: freshReq.required_units || prev.unitsNeeded,
+                city: freshReq.city || prev.city,
+                district: freshReq.district || prev.district,
+                location: freshLoc || prev.location,
+                urgency: freshReq.urgency_level || prev.urgency,
+                medicalNote: freshReq.medical_note || prev.medicalNote
+              }));
+            }
             const rawStatus = (freshReq.status || freshReq.Status || '').toString().toLowerCase();
             if (rawStatus === 'resolved' || rawStatus === 'completed' || rawStatus === 'tamamlandı' || rawStatus === 'karşılandı' || rawStatus === 'closed') {
               setListingStatus('Tamamlandı');
@@ -97,7 +190,7 @@ export default function MyListingDetailScreen({ route, navigation }: any) {
       await acceptVolunteer(id);
       await updateBloodRequest(listing.id, { status: 'Onaylandı' }).catch(() => {});
       setListingStatus('Onaylandı');
-      Alert.alert('Onaylandı 🎉', 'Gönüllü kabul edildi! Aşağıdaki iletişim kutucuğundan gönüllünün telefon numarasına ulaşıp hemen arayabilir veya WhatsApp üzerinden yazabilirsiniz.');
+      Alert.alert('Onaylandı', 'Gönüllü kabul edildi! Aşağıdaki iletişim kutucuğundan gönüllünün telefon numarasına ulaşıp hemen arayabilir veya WhatsApp üzerinden yazabilirsiniz.');
       updateStatus(id, 'Onaylandı');
     } catch (error) {
       Alert.alert('Hata', 'İşlem gerçekleştirilemedi.');
@@ -152,15 +245,20 @@ export default function MyListingDetailScreen({ route, navigation }: any) {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.summaryCard}>
           <View style={styles.summaryHeader}>
-            <View style={[styles.bloodBadge, { backgroundColor: getBloodTypeBgColor(listing.bloodType) }]}>
-              <Text style={styles.bloodBadgeText}>{listing.bloodType}</Text>
+            <View style={[styles.bloodBadge, { backgroundColor: getBloodTypeBgColor(listingData.bloodType) }]}>
+              <Text style={styles.bloodBadgeText}>{listingData.bloodType}</Text>
             </View>
             <View style={styles.summaryDetails}>
-              <Text style={styles.summaryHospital}>{listing.hospital}</Text>
-              <Text style={styles.summaryMeta}>{listing.unitsNeeded} Ünite • {listing.location}</Text>
-              <Text style={styles.summaryTime}>{listing.timeAgo} açıldı</Text>
+              <Text style={styles.summaryHospital}>{listingData.hospital}</Text>
+              <Text style={styles.summaryMeta}>{listingData.unitsNeeded} Ünite • {listingData.location}</Text>
+              <Text style={styles.summaryTime}>{listingData.timeAgo} açıldı</Text>
             </View>
           </View>
+          {listingData.medicalNote ? (
+            <View style={{ marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#F0F0F0' }}>
+              <Text style={{ fontSize: 13, color: '#666', fontStyle: 'italic' }}>📝 Not: {listingData.medicalNote}</Text>
+            </View>
+          ) : null}
         </View>
 
         <View style={styles.sectionHeader}>
@@ -175,7 +273,7 @@ export default function MyListingDetailScreen({ route, navigation }: any) {
         ) : volunteers.length === 0 ? (
           <View style={styles.emptyContainer}>
             <View style={styles.emptyIconCircle}>
-              <Text style={styles.emptyIconText}>🦸‍♂️</Text>
+              <Ionicons name="people-outline" size={36} color="#E63946" />
             </View>
             <Text style={styles.emptyTitle}>Henüz Başvuran Gönüllü Yok</Text>
             <Text style={styles.emptySubText}>
@@ -223,23 +321,32 @@ export default function MyListingDetailScreen({ route, navigation }: any) {
                     <TouchableOpacity 
                       style={[styles.actionBtn, styles.detailBtn]} 
                       onPress={() => Alert.alert(
-                        '👤 Gönüllü Bilgileri', 
-                        `Ad Soyad: ${volunteer.name}\nKan Grubu: ${volunteer.bloodType}\nŞehir: ${volunteer.city}\n\n💡 Bilgi: Onayla butonuna bastığınızda gönüllünün telefon numarası açılacak ve hemen arayabileceksiniz. Sizin numaranız gönüllüyle otomatik paylaşılmaz.`
+                        'Gönüllü Bilgileri', 
+                        `Ad Soyad: ${volunteer.name}\nKan Grubu: ${volunteer.bloodType}\nŞehir: ${volunteer.city}\n\nBilgi: Onayla butonuna bastığınızda gönüllünün telefon numarası açılacak ve hemen arayabileceksiniz. Sizin numaranız gönüllüyle otomatik paylaşılmaz.`
                       )}
                     >
-                      <Text style={styles.detailBtnText}>👤 Detay</Text>
+                      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <Ionicons name="information-circle-outline" size={14} color="#666" style={{ marginRight: 4 }} />
+                        <Text style={styles.detailBtnText}>Detay</Text>
+                      </View>
                     </TouchableOpacity>
                     <TouchableOpacity 
                       style={[styles.actionBtn, styles.rejectBtn]} 
                       onPress={() => handleReject(volunteer.id)}
                     >
-                      <Text style={styles.rejectBtnText}>✕ Reddet</Text>
+                      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <Ionicons name="close-outline" size={16} color="#E63946" style={{ marginRight: 2 }} />
+                        <Text style={styles.rejectBtnText}>Reddet</Text>
+                      </View>
                     </TouchableOpacity>
                     <TouchableOpacity 
                       style={[styles.actionBtn, styles.acceptBtn]} 
                       onPress={() => handleAccept(volunteer.id)}
                     >
-                      <Text style={styles.acceptBtnText}>✓ Onayla</Text>
+                      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <Ionicons name="checkmark-outline" size={16} color="#FFF" style={{ marginRight: 2 }} />
+                        <Text style={styles.acceptBtnText}>Onayla</Text>
+                      </View>
                     </TouchableOpacity>
                   </View>
                 )}
@@ -247,7 +354,10 @@ export default function MyListingDetailScreen({ route, navigation }: any) {
                 {isAccepted && (
                   <View style={styles.acceptedBox}>
                     <View style={styles.acceptedHeader}>
-                      <Text style={styles.acceptedTitle}>✅ Gönüllü Onaylandı • İletişim Açık</Text>
+                      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <Ionicons name="checkmark-circle-outline" size={18} color="#2EC4B6" style={{ marginRight: 6 }} />
+                        <Text style={styles.acceptedTitle}>Gönüllü Onaylandı • İletişim Açık</Text>
+                      </View>
                       <Text style={styles.acceptedNote}>İlan sahibi olarak gönüllüye siz ulaşmalısınız.</Text>
                     </View>
                     
@@ -261,27 +371,42 @@ export default function MyListingDetailScreen({ route, navigation }: any) {
                         style={[styles.contactCallBtn, { backgroundColor: '#2EC4B6' }]}
                         onPress={() => Linking.openURL(`tel:${volunteer.phone || '+905324481972'}`)}
                       >
-                        <Text style={styles.contactBtnText}>📞 Hemen Ara</Text>
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                          <Ionicons name="call-outline" size={16} color="#FFF" style={{ marginRight: 6 }} />
+                          <Text style={styles.contactBtnText}>Hemen Ara</Text>
+                        </View>
                       </TouchableOpacity>
                       <TouchableOpacity 
                         style={[styles.contactCallBtn, { backgroundColor: '#25D366' }]}
                         onPress={() => Linking.openURL(`whatsapp://send?phone=${(volunteer.phone || '+905324481972').replace(/[^0-9]/g, '')}`)}
                       >
-                        <Text style={styles.contactBtnText}>💬 WhatsApp</Text>
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                          <Ionicons name="logo-whatsapp" size={16} color="#FFF" style={{ marginRight: 6 }} />
+                          <Text style={styles.contactBtnText}>WhatsApp</Text>
+                        </View>
                       </TouchableOpacity>
                     </View>
 
                     <TouchableOpacity style={styles.undoContainer} onPress={() => handleUndo(volunteer.id)}>
-                      <Text style={styles.undoText}>Onayı Geri Al ↩️</Text>
+                      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <Text style={styles.undoText}>Onayı Geri Al</Text>
+                        <Ionicons name="arrow-undo-outline" size={14} color="#666" style={{ marginLeft: 4 }} />
+                      </View>
                     </TouchableOpacity>
                   </View>
                 )}
 
                 {isRejected && (
                   <View style={styles.resultContainer}>
-                    <Text style={styles.resultTextError}>✕ Başvuru reddedildi</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                      <Ionicons name="close-circle-outline" size={16} color="#E63946" style={{ marginRight: 4 }} />
+                      <Text style={styles.resultTextError}>Başvuru reddedildi</Text>
+                    </View>
                     <TouchableOpacity onPress={() => handleUndo(volunteer.id)}>
-                      <Text style={styles.undoText}>Geri Al ↩️</Text>
+                      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <Text style={styles.undoText}>Geri Al</Text>
+                        <Ionicons name="arrow-undo-outline" size={14} color="#666" style={{ marginLeft: 4 }} />
+                      </View>
                     </TouchableOpacity>
                   </View>
                 )}
@@ -298,7 +423,7 @@ export default function MyListingDetailScreen({ route, navigation }: any) {
               style={styles.closeListingButton}
               onPress={() => {
                 Alert.alert(
-                  '🏁 İlanı Kapat',
+                  'İlanı Kapat',
                   'Hasta için gereken kan bulundu mu veya ihtiyaç sona erdi mi? İlanı kapattığınızda yeni gönüllü başvurusuna kapatılacaktır.',
                   [
                     { text: 'Vazgeç', style: 'cancel' },
@@ -308,11 +433,11 @@ export default function MyListingDetailScreen({ route, navigation }: any) {
                         try {
                           await completeBloodRequest(listing.id);
                           setListingStatus('Tamamlandı');
-                          Alert.alert('Başarılı 🏁', 'İlanınız "Tamamlandı" olarak işaretlendi ve aktif listelerden kaldırıldı. Duyarlılığınız için teşekkür ederiz!');
+                          Alert.alert('Başarılı', 'İlanınız "Tamamlandı" olarak işaretlendi ve aktif listelerden kaldırıldı. Duyarlılığınız için teşekkür ederiz!');
                         } catch (error: any) {
                           console.error("completeBloodRequest error details:", error?.response?.data || error?.message || error);
                           const errMsg = (error?.response?.data?.error || error?.response?.data?.message || error?.message || '').toString();
-                          Alert.alert('Hata ⚠️', errMsg ? `İlan kapatılamadı: ${errMsg}` : 'İlan kapatılamadı. Lütfen tekrar deneyin.');
+                          Alert.alert('Hata', errMsg ? `İlan kapatılamadı: ${errMsg}` : 'İlan kapatılamadı. Lütfen tekrar deneyin.');
                         }
                       } 
                     }
@@ -320,26 +445,46 @@ export default function MyListingDetailScreen({ route, navigation }: any) {
                 );
               }}
             >
-              <Text style={styles.closeListingBtnText}>🏁 İlanı Tamamlandı Olarak Kapat</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Ionicons name="flag-outline" size={18} color="#FFF" style={{ marginRight: 8 }} />
+                <Text style={styles.closeListingBtnText}>İlanı Tamamlandı Olarak Kapat</Text>
+              </View>
             </TouchableOpacity>
           ) : (
             <View style={styles.completedBox}>
-              <Text style={styles.completedText}>✅ Bu ilandaki kan ihtiyacı başarıyla karşılandı.</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+                <Ionicons name="checkmark-circle-outline" size={18} color="#16A085" style={{ marginRight: 6 }} />
+                <Text style={styles.completedText}>Bu ilandaki kan ihtiyacı başarıyla karşılandı.</Text>
+              </View>
               <TouchableOpacity onPress={async () => {
                 await updateBloodRequest(listing.id, { status: 'active' }).catch(() => {});
                 setListingStatus('Aktif');
               }}>
-                <Text style={styles.reopenText}>🔄 İlanı Tekrar Aktif Et</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <Ionicons name="refresh-outline" size={16} color="#3498DB" style={{ marginRight: 4 }} />
+                  <Text style={styles.reopenText}>İlanı Tekrar Aktif Et</Text>
+                </View>
               </TouchableOpacity>
             </View>
           )}
+
+          {/* İlanı Düzenle Butonu */}
+          <TouchableOpacity 
+            style={[styles.closeListingButton, { backgroundColor: '#F3F4F6', borderWidth: 1, borderColor: '#4B5563', marginTop: 16 }]}
+            onPress={openEditListingModal}
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Ionicons name="create-outline" size={18} color="#1F2937" style={{ marginRight: 8 }} />
+              <Text style={[styles.closeListingBtnText, { color: '#1F2937' }]}>İlan Bilgilerini Düzenle</Text>
+            </View>
+          </TouchableOpacity>
 
           {/* İlanı Sil / Yayından Kaldır butonu HER ZAMAN Kalsın! İlan ister Aktif olsun ister Tamamlandı, sahip silebilmeli! */}
           <TouchableOpacity 
             style={[styles.closeListingButton, { backgroundColor: '#FFF', borderWidth: 1, borderColor: '#E63946', marginTop: 12 }]}
             onPress={() => {
               Alert.alert(
-                '🗑️ İlanı Sil / İptal Et',
+                'İlanı Sil / İptal Et',
                 'Bu kan ilanını tamamen yayından kaldırmak istediğinize emin misiniz? Bu işlem geri alınamaz.',
                 [
                   { text: 'Vazgeç', style: 'cancel' },
@@ -361,10 +506,101 @@ export default function MyListingDetailScreen({ route, navigation }: any) {
               );
             }}
           >
-            <Text style={[styles.closeListingBtnText, { color: '#E63946' }]}>🗑️ İlanı Sil / Yayından Kaldır</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Ionicons name="trash-outline" size={18} color="#E63946" style={{ marginRight: 8 }} />
+              <Text style={[styles.closeListingBtnText, { color: '#E63946' }]}>İlanı Sil / Yayından Kaldır</Text>
+            </View>
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      {/* İLAN DÜZENLEME MODALI */}
+      <Modal visible={isEditModalVisible} animationType="slide" transparent={true}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
+              <Ionicons name="create-outline" size={22} color="#1F2937" style={{ marginRight: 8 }} />
+              <Text style={[styles.modalTitle, { marginBottom: 0 }]}>İlanı Düzenle</Text>
+            </View>
+            
+            <ScrollView style={{ maxHeight: 400 }}>
+              <Text style={styles.inputLabel}>Hastane Adı</Text>
+              <TextInput 
+                style={styles.modalInput} 
+                value={editHospital} 
+                onChangeText={setEditHospital}
+                placeholder="Örn: Akdeniz Tıp Fakültesi Hastanesi"
+              />
+
+              <Text style={styles.inputLabel}>Kan Grubu</Text>
+              <TextInput 
+                style={styles.modalInput} 
+                value={editBloodType} 
+                onChangeText={setEditBloodType}
+                autoCapitalize="characters"
+                maxLength={3}
+                placeholder="Örn: A+, 0-"
+              />
+
+              <Text style={styles.inputLabel}>İhtiyaç Duyulan Ünite</Text>
+              <TextInput 
+                style={styles.modalInput} 
+                value={editUnits} 
+                onChangeText={setEditUnits}
+                keyboardType="numeric"
+                maxLength={2}
+                placeholder="Örn: 2"
+              />
+
+              <Text style={styles.inputLabel}>Şehir</Text>
+              <TextInput 
+                style={styles.modalInput} 
+                value={editCity} 
+                onChangeText={setEditCity}
+                placeholder="Örn: Antalya"
+              />
+
+              <Text style={styles.inputLabel}>İlçe</Text>
+              <TextInput 
+                style={styles.modalInput} 
+                value={editDistrict} 
+                onChangeText={setEditDistrict}
+                placeholder="Örn: Konyaaltı"
+              />
+
+              <Text style={styles.inputLabel}>Aciliyet Seviyesi (Kritik / Acil / Normal)</Text>
+              <TextInput 
+                style={styles.modalInput} 
+                value={editUrgency} 
+                onChangeText={setEditUrgency}
+                placeholder="Örn: Kritik"
+              />
+
+              <Text style={styles.inputLabel}>Tıbbi Not / Açıklama</Text>
+              <TextInput 
+                style={[styles.modalInput, { height: 70, textAlignVertical: 'top' }]} 
+                value={editMedicalNote} 
+                onChangeText={setEditMedicalNote}
+                multiline={true}
+                placeholder="Örn: Trombosit aranıyor, hasta ameliyatta."
+              />
+            </ScrollView>
+
+            <View style={styles.modalButtons}>
+              <TouchableOpacity style={styles.modalCancelBtn} onPress={() => setEditModalVisible(false)} disabled={isUpdatingListing}>
+                <Text style={styles.modalCancelBtnText}>İptal</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.modalSaveBtn} onPress={handleUpdateListing} disabled={isUpdatingListing}>
+                {isUpdatingListing ? (
+                  <ActivityIndicator color="#FFF" size="small" />
+                ) : (
+                  <Text style={styles.modalSaveBtnText}>Kaydet</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -747,4 +983,14 @@ const styles = StyleSheet.create({
     textDecorationLine: 'underline',
     fontWeight: '600',
   },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
+  modalContent: { width: '88%', backgroundColor: '#FFF', borderRadius: 16, padding: 20, shadowColor: '#000', shadowOpacity: 0.25, shadowRadius: 4, elevation: 5 },
+  modalTitle: { fontSize: 18, fontWeight: 'bold', color: '#333', marginBottom: 16, textAlign: 'center' },
+  inputLabel: { fontSize: 13, color: '#666', marginBottom: 4, fontWeight: '600' },
+  modalInput: { backgroundColor: '#F5F5F5', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10, fontSize: 15, color: '#333', marginBottom: 12, borderWidth: 1, borderColor: '#E0E0E0' },
+  modalButtons: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 12 },
+  modalCancelBtn: { flex: 1, paddingVertical: 12, alignItems: 'center', borderRadius: 8, backgroundColor: '#F0F0F0', marginRight: 8 },
+  modalCancelBtnText: { color: '#666', fontWeight: 'bold', fontSize: 15 },
+  modalSaveBtn: { flex: 1, paddingVertical: 12, alignItems: 'center', borderRadius: 8, backgroundColor: '#E63946', marginLeft: 8 },
+  modalSaveBtnText: { color: '#FFF', fontWeight: 'bold', fontSize: 15 },
 });

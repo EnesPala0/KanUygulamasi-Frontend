@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { registerUser } from '../api/auth';
+import { Ionicons } from '@expo/vector-icons';
 import {
   StyleSheet,
   Text,
@@ -146,7 +147,7 @@ export default function SignupScreen({ navigation }: any) {
               style={styles.eyeButton}
               onPress={() => setShowPassword(!showPassword)}
             >
-              <Text style={styles.eyeIcon}>{showPassword ? '👁️' : '🙈'}</Text>
+              <Ionicons name={showPassword ? 'eye-outline' : 'eye-off-outline'} size={22} color="#888" />
             </TouchableOpacity>
           </View>
 

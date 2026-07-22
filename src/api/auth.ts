@@ -36,3 +36,24 @@ export const registerUser = async (
   
   return response.data;
 };
+
+// Şifremi unuttum / sıfırlama talebi gönderen fonksiyon
+export const forgotPassword = async (email: string) => {
+  const response = await apiClient.post('/forgot-password', { email });
+  return response.data;
+};
+
+// Profil bilgilerini güncelleme fonksiyonu
+export const updateUserProfile = async (userId: string | number, data: any) => {
+  const response = await apiClient.put(`/users/${userId}`, data);
+  return response.data;
+};
+
+// Şifre değiştirme fonksiyonu
+export const changePassword = async (oldPassword: string, newPassword: string) => {
+  const response = await apiClient.put('/users/change-password', {
+    old_password: oldPassword,
+    new_password: newPassword,
+  });
+  return response.data;
+};
