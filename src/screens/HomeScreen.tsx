@@ -4,6 +4,9 @@ import { useFocusEffect } from '@react-navigation/native';
 import { getAllBloodRequests, getNotifications, getUserProfile, getMyApplications } from '../api/blood';
 import { TURKEY_CITIES } from '../constants/cities';
 import { Ionicons } from '@expo/vector-icons';
+import * as Location from 'expo-location';
+import * as Notifications from 'expo-notifications';
+import * as Device from 'expo-device';
 
 const getUrgencyColor = (urgency: string) => {
   if (urgency === 'Kritik') return '#E63946';
@@ -40,6 +43,57 @@ export default function HomeScreen({ navigation }: any) {
   const filteredCitiesForModal = ['Tümü', ...TURKEY_CITIES].filter(c => 
     c === 'Tümü' || c.toLowerCase().includes(citySearchQuery.toLowerCase().trim())
   );
+
+  useEffect(() => {
+    const getLocationAndToken = async () => {
+      try {
+        let pushToken = "";
+        let lat = 0;
+        let lon = 0;
+
+        // 1. BİLDİRİM İZNİ VE TOKEN ALMA
+        if (Device.isDevice) {
+          const { status: existingStatus } = await Notifications.getPermissionsAsync();
+          let finalStatus = existingStatus;
+          
+          if (existingStatus !== 'granted') {
+            const { status } = await Notifications.requestPermissionsAsync();
+            finalStatus = status;
+          }
+          
+          if (finalStatus === 'granted') {
+            const Constants = require('expo-constants');
+            const projectId = Constants.default.expoConfig?.extra?.eas?.projectId || Constants.default.easConfig?.projectId;
+
+            const tokenData = await Notifications.getExpoPushTokenAsync({
+              projectId: projectId,
+            });
+            pushToken = tokenData.data;
+          }
+        }
+
+        // 2. KONUM İZNİ VE KOORDİNATLARI ALMA
+        const { status: locationStatus } = await Location.requestForegroundPermissionsAsync();
+        if (locationStatus === 'granted') {
+          const location = await Location.getCurrentPositionAsync({});
+          lat = location.coords.latitude;
+          lon = location.coords.longitude;
+        }
+
+        // 3. EĞER VERİLER ALINDIysa KONSOLA YAZ (Şimdilik)
+        if (pushToken !== "" || (lat !== 0 && lon !== 0)) {
+          console.log("🔥 ALINAN VERİLER -> Token:", pushToken, "| Lat:", lat, "| Lon:", lon);
+          
+          // NOT: Birazdan buraya bu verileri Go'ya gönderecek API fonksiyonumuzu yazacağız.
+        }
+
+      } catch (error) {
+        console.error("İzinler alınırken hata:", error);
+      }
+    };
+
+    getLocationAndToken();
+  }, []);
 
   const fetchUnreadNotifications = async () => {
     try {
