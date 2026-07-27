@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, FlatList, SafeAreaView, StatusBar, RefreshControl, Alert, ActivityIndicator, Modal, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { getAllBloodRequests, getNotifications, getUserProfile, getMyApplications } from '../api/blood';
+import { getAllBloodRequests, getNotifications, getUserProfile, getMyApplications, syncLocationAndToken } from '../api/blood';
 import { TURKEY_CITIES } from '../constants/cities';
 import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
+
 
 const getUrgencyColor = (urgency: string) => {
   if (urgency === 'Kritik') return '#E63946';
@@ -80,11 +81,21 @@ export default function HomeScreen({ navigation }: any) {
           lon = location.coords.longitude;
         }
 
-        // 3. EĞER VERİLER ALINDIysa KONSOLA YAZ (Şimdilik)
+        // 3. EĞER VERİLER ALINDIysa KONSOLA YAZ VE GO'YA GÖNDER
         if (pushToken !== "" || (lat !== 0 && lon !== 0)) {
           console.log("🔥 ALINAN VERİLER -> Token:", pushToken, "| Lat:", lat, "| Lon:", lon);
           
-          // NOT: Birazdan buraya bu verileri Go'ya gönderecek API fonksiyonumuzu yazacağız.
+          try {
+            // Verileri Go'ya yolluyoruz
+            await syncLocationAndToken({
+              latitude: lat,
+              longitude: lon,
+              expo_push_token: pushToken
+            });
+            console.log("✅ İstihbarat Go'ya başarıyla ulaştı!");
+          } catch (err) {
+            console.log("❌ Go'ya gönderirken hata çıktı:", err);
+          }
         }
 
       } catch (error) {
