@@ -341,16 +341,25 @@ export default function ProfileScreen({ navigation }: any) {
 
       <View style={styles.statsRow}>
         <View style={styles.statCard}>
-          <Text style={styles.statValue}>{safeUser.totalDonations}</Text>
-          <Text style={styles.statLabel}>Bağış</Text>
+          <View style={[styles.statIconContainer, { backgroundColor: '#FEE2E2' }]}>
+            <Ionicons name="water" size={22} color="#DC2626" />
+          </View>
+          <Text style={styles.statValue}>{safeUser.totalDonations || 0}</Text>
+          <Text style={styles.statLabel}>Toplam Bağış</Text>
         </View>
         <View style={styles.statCard}>
-          <Text style={styles.statValue}>{safeUser.savedLives}</Text>
-          <Text style={styles.statLabel}>Kurtarılan</Text>
+          <View style={[styles.statIconContainer, { backgroundColor: '#FCE7F3' }]}>
+            <Ionicons name="heart" size={22} color="#DB2777" />
+          </View>
+          <Text style={styles.statValue}>{safeUser.savedLives || 0}</Text>
+          <Text style={styles.statLabel}>Hayat Kurtardı</Text>
         </View>
         <View style={styles.statCard}>
-          <Text style={styles.statValue}>{safeUser.streakYears} Yıl</Text>
-          <Text style={styles.statLabel}>Seri</Text>
+          <View style={[styles.statIconContainer, { backgroundColor: '#FEF3C7' }]}>
+            <Ionicons name="flame" size={22} color="#D97706" />
+          </View>
+          <Text style={styles.statValue}>{safeUser.streakYears || 0} Yıl</Text>
+          <Text style={styles.statLabel}>Bağış Serisi</Text>
         </View>
       </View>
 
@@ -671,10 +680,33 @@ const styles = StyleSheet.create({
   infoRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#F0F0F0' },
   infoLabel: { fontSize: 14, color: '#666' },
   infoValue: { fontSize: 14, fontWeight: '500', color: '#333' },
-  statsRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16 },
-  statCard: { flex: 1, backgroundColor: '#FFF', borderRadius: 12, padding: 16, alignItems: 'center', marginHorizontal: 4, borderWidth: 1, borderColor: '#E0E0E0' },
-  statValue: { fontSize: 20, fontWeight: 'bold', color: '#E63946', marginBottom: 4 },
-  statLabel: { fontSize: 12, color: '#666' },
+  statsRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
+  statCard: { 
+    flex: 1, 
+    backgroundColor: '#FFF', 
+    borderRadius: 16, 
+    paddingVertical: 18, 
+    paddingHorizontal: 8,
+    alignItems: 'center', 
+    marginHorizontal: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.02)'
+  },
+  statIconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12
+  },
+  statValue: { fontSize: 18, fontWeight: '800', color: '#1A1A2E', marginBottom: 4 },
+  statLabel: { fontSize: 11, color: '#666', fontWeight: '600', textAlign: 'center' },
   changePasswordButton: { padding: 16, borderRadius: 12, alignItems: 'center', backgroundColor: '#F3F4F6', borderWidth: 1, borderColor: '#D1D5DB', marginTop: 8, marginBottom: 8 },
   changePasswordButtonText: { color: '#1F2937', fontSize: 16, fontWeight: '600' },
   logoutButton: { padding: 16, borderRadius: 12, alignItems: 'center', borderWidth: 1, borderColor: '#E63946', marginTop: 8, marginBottom: 8 },
