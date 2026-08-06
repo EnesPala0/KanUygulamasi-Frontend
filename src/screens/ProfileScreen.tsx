@@ -170,6 +170,8 @@ export default function ProfileScreen({ navigation }: any) {
             computedStatus = 'Onaylandı';
           } else if (rawStatus === 'cancelled' || rawStatus === 'iptal') {
             computedStatus = 'İptal Edildi';
+          } else if (rawStatus === 'expired' || rawStatus === 'süresi doldu') {
+            computedStatus = 'Süresi Doldu';
           }
 
           return {
@@ -454,23 +456,36 @@ export default function ProfileScreen({ navigation }: any) {
               </TouchableOpacity>
             </View>
           ) : (
-            createdListings.map((item, index) => (
-              <TouchableOpacity key={`created-${item.id}-${index}`} style={styles.listingCard} onPress={() => navigation.navigate('MyListingDetail', { listing: item })}>
-                <View style={styles.listingHeader}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <View style={[styles.historyBadge, { backgroundColor: getBloodTypeBgColor(item.bloodType), marginRight: 8, paddingHorizontal: 6, paddingVertical: 2 }]}>
-                      <Text style={styles.historyBadgeText}>{item.bloodType}</Text>
+            createdListings.map((item, index) => {
+              const isExpired = item.status === 'Süresi Doldu';
+              return (
+                <TouchableOpacity 
+                  key={`created-${item.id}-${index}`} 
+                  style={[styles.listingCard, isExpired && { opacity: 0.6, backgroundColor: '#F9F9F9' }]} 
+                  onPress={() => navigation.navigate('MyListingDetail', { listing: item })}
+                >
+                  <View style={styles.listingHeader}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                      <View style={[styles.historyBadge, { backgroundColor: isExpired ? '#999' : getBloodTypeBgColor(item.bloodType), marginRight: 8, paddingHorizontal: 6, paddingVertical: 2 }]}>
+                        <Text style={styles.historyBadgeText}>{item.bloodType}</Text>
+                      </View>
+                      <Text style={[styles.listingHospital, isExpired && { color: '#666' }]}>{item.hospital}</Text>
                     </View>
-                    <Text style={styles.listingHospital}>{item.hospital}</Text>
+                    {isExpired ? (
+                      <View style={[styles.volunteersBadge, { backgroundColor: '#FEE2E2' }]}>
+                        <Text style={[styles.volunteersBadgeText, { color: '#DC2626' }]}>Süresi Doldu</Text>
+                      </View>
+                    ) : (
+                      <View style={styles.volunteersBadge}>
+                        <Text style={styles.volunteersBadgeText}>{item.volunteers?.length || 0} Başvuru</Text>
+                      </View>
+                    )}
                   </View>
-                  <View style={styles.volunteersBadge}>
-                    <Text style={styles.volunteersBadgeText}>{item.volunteers?.length || 0} Başvuru</Text>
-                  </View>
-                </View>
-                <Text style={styles.listingLocation}>{item.location} • {item.unitsNeeded} Ünite</Text>
-                <Text style={styles.listingTime}>{item.timeAgo} açıldı</Text>
-              </TouchableOpacity>
-            ))
+                  <Text style={[styles.listingLocation, isExpired && { color: '#999' }]}>{item.location} • {item.unitsNeeded} Ünite</Text>
+                  <Text style={[styles.listingTime, isExpired && { color: '#999' }]}>{item.timeAgo} açıldı</Text>
+                </TouchableOpacity>
+              );
+            })
           )}
         </View>
       )}

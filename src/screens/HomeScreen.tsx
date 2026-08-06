@@ -141,8 +141,13 @@ export default function HomeScreen({ navigation }: any) {
       const rawArray = Array.isArray(data) ? data : (data.blood_requests || data.data || data.requests || []);
       const myAppsArray = Array.isArray(myAppsRes) ? myAppsRes : (myAppsRes?.data || myAppsRes?.applications || []);
 
-      const formattedListings = rawArray.map((item: any) => {
-        const rawStatus = (item.status || item.Status || '').toString().toLowerCase();
+      const formattedListings = rawArray
+        .filter((item: any) => {
+          const s = (item.status || item.Status || '').toString().toLowerCase();
+          return s !== 'expired' && s !== 'süresi doldu';
+        })
+        .map((item: any) => {
+          const rawStatus = (item.status || item.Status || '').toString().toLowerCase();
         const volArray = Array.isArray(item.volunteers) ? item.volunteers : [];
         const hasApprovedVolunteer = volArray.some((v: any) => {
           const vs = (v.status || v.Status || '').toString().toLowerCase();
