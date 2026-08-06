@@ -206,11 +206,10 @@ export const markNotificationAsRead = async (notificationId: string | number) =>
 // Kullanıcının konumunu ve token'ını güncelleyen API çağrısı
 export const syncLocationAndToken = async (data: { latitude: number, longitude: number, expo_push_token: string }) => {
   try {
-    // Kendi axios veya fetch yapına göre burayı uyarla. Örnek bir axios isteği:
     const response = await apiClient.put('/user/location', data); 
     return response.data;
   } catch (error) {
-    console.error("Konum güncellenirken sunucu hatası:", error);
+    console.log("Konum güncellenirken sunucu hatası:", error);
     throw error;
   }
 };
