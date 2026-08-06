@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, SafeAreaView, ScrollView, StatusBar, Alert, Platform, ActivityIndicator, RefreshControl, Modal, TextInput } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { getMyApplications, getMyCreatedListings, getUserProfile, updateUserProfile, getVolunteers } from '../api/blood';
-import { changePassword } from '../api/auth';
+import { changePassword, deleteAccount } from '../api/auth';
 import { getErrorMessage } from '../utils/errors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
@@ -217,6 +217,31 @@ export default function ProfileScreen({ navigation }: any) {
     );
   };
 
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      'Hesabınızı Silmek İstediğinize Emin Misiniz?',
+      'Bu işlem geri alınamaz ve tüm verileriniz anonimleştirilir.',
+      [
+        { text: 'İptal', style: 'cancel' },
+        { 
+          text: 'Hesabımı Sil', 
+          style: 'destructive', 
+          onPress: async () => {
+            try {
+              await deleteAccount();
+              await AsyncStorage.removeItem('userToken');
+              const rootNav = navigation.getParent()?.getParent() || navigation;
+              rootNav.reset({ index: 0, routes: [{ name: 'Login' }] });
+            } catch (error: any) {
+              const msg = getErrorMessage(error, "Hesabınız silinirken bir sorun oluştu.");
+              Alert.alert("Hata", msg);
+            }
+          }
+        }
+      ]
+    );
+  };
+
   const handleUpdateProfile = async () => {
     if (!userData?.id) return;
 
@@ -343,6 +368,13 @@ export default function ProfileScreen({ navigation }: any) {
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
           <Ionicons name="log-out-outline" size={18} color="#E63946" style={{ marginRight: 6 }} />
           <Text style={styles.logoutButtonText}>Çıkış Yap</Text>
+        </View>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.deleteAccountButton} onPress={handleDeleteAccount}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+          <Ionicons name="trash-outline" size={18} color="#FFF" style={{ marginRight: 6 }} />
+          <Text style={styles.deleteAccountButtonText}>Hesabımı Sil</Text>
         </View>
       </TouchableOpacity>
     </View>
@@ -630,8 +662,10 @@ const styles = StyleSheet.create({
   statLabel: { fontSize: 12, color: '#666' },
   changePasswordButton: { padding: 16, borderRadius: 12, alignItems: 'center', backgroundColor: '#F3F4F6', borderWidth: 1, borderColor: '#D1D5DB', marginTop: 8, marginBottom: 8 },
   changePasswordButtonText: { color: '#1F2937', fontSize: 16, fontWeight: '600' },
-  logoutButton: { padding: 16, borderRadius: 12, alignItems: 'center', borderWidth: 1, borderColor: '#E63946', marginTop: 8, marginBottom: 24 },
+  logoutButton: { padding: 16, borderRadius: 12, alignItems: 'center', borderWidth: 1, borderColor: '#E63946', marginTop: 8, marginBottom: 8 },
   logoutButtonText: { color: '#E63946', fontSize: 16, fontWeight: '600' },
+  deleteAccountButton: { padding: 16, borderRadius: 12, alignItems: 'center', backgroundColor: '#E63946', marginTop: 8, marginBottom: 24, shadowColor: '#E63946', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4, elevation: 4 },
+  deleteAccountButtonText: { color: '#FFF', fontSize: 16, fontWeight: '600' },
   subTabContainer: { flexDirection: 'row', backgroundColor: '#E0E0E0', borderRadius: 8, padding: 4, marginBottom: 16 },
   subTab: { flex: 1, paddingVertical: 8, alignItems: 'center', borderRadius: 6 },
   subTabActive: { backgroundColor: '#FFF' },

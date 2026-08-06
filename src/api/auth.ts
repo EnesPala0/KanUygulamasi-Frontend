@@ -57,3 +57,9 @@ export const changePassword = async (oldPassword: string, newPassword: string) =
   });
   return response.data;
 };
+
+// Hesabı silme (Soft Delete) fonksiyonu
+export const deleteAccount = async () => {
+  const response = await apiClient.delete('/me');
+  return response.data;
+};
