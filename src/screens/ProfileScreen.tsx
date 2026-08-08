@@ -271,7 +271,8 @@ export default function ProfileScreen({ navigation }: any) {
         last_name: editLastName.trim(),
         phone: editPhone,
         blood_type: formattedBloodType, // Kullanıcı küçük harf yazsa bile büyütüp yolluyoruz
-        city: editCity.trim()
+        city: editCity.trim(),
+        district: userData?.district || ""
       };
 
       await updateUserProfile(userData.id, updateData);
