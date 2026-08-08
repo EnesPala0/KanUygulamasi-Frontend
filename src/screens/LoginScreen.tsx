@@ -15,7 +15,8 @@ import {
   Alert,
   Modal,
   ActivityIndicator,
-  Image
+  Image,
+  ScrollView
 } from 'react-native';
 
 export default function LoginScreen({ navigation }: any) {
@@ -79,8 +80,9 @@ export default function LoginScreen({ navigation }: any) {
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={styles.container}
         >
-          {/* Üst Kırmızı Alan (Header) */}
-          <View style={styles.headerContainer}>
+          <ScrollView contentContainerStyle={{ flexGrow: 1 }} bounces={false} showsVerticalScrollIndicator={false}>
+            {/* Üst Kırmızı Alan (Header) */}
+            <View style={styles.headerContainer}>
             <View style={styles.logoCircle}>
               <Image source={require('../../assets/icon.png')} style={{width: 48, height: 48, borderRadius: 24}} />
             </View>
@@ -147,7 +149,10 @@ export default function LoginScreen({ navigation }: any) {
               <Text style={styles.signupText}>Kayıt Ol</Text>
             </TouchableOpacity>
           </View>
+          
+          <View style={{ height: 20 }} />
         </View>
+        </ScrollView>
       </KeyboardAvoidingView>
 
       {/* Şifremi Unuttum Modalı */}
@@ -215,7 +220,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   headerContainer: {
-    flex: 0.4,
+    paddingTop: 30,
+    paddingBottom: 60,
     justifyContent: 'center',
     paddingHorizontal: 30,
     backgroundColor: '#E63946',
@@ -251,7 +257,7 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   formContainer: {
-    flex: 0.6,
+    flex: 1,
     backgroundColor: '#F3F4F6',
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
