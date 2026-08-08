@@ -16,6 +16,7 @@ import CreateListingScreen from './src/screens/CreateListingScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import MyListingDetailScreen from './src/screens/MyListingDetailScreen';
 import NotificationsScreen from './src/screens/NotificationsScreen';
+import PublicProfileScreen from './src/screens/PublicProfileScreen';
 
 // Navigator'lar
 const Stack = createNativeStackNavigator();
@@ -155,7 +156,7 @@ function SplashScreen({ navigation }: any) {
       <View style={splashStyles.logoCircle}>
         <Ionicons name="water" size={44} color="#E63946" />
       </View>
-      <Text style={splashStyles.appName}>BloodBridge</Text>
+      <Text style={splashStyles.appName}>KanBağı</Text>
       <ActivityIndicator size="large" color="#FFF" style={{ marginTop: 25 }} />
     </View>
   );
@@ -176,6 +177,7 @@ export default function App() {
         {/* Global Detay Ekranları */}
         <Stack.Screen name="ListingDetail" component={ListingDetailScreen} />
         <Stack.Screen name="MyListingDetail" component={MyListingDetailScreen} />
+        <Stack.Screen name="PublicProfile" component={PublicProfileScreen} />
         {/* Yeni İlan Modal */}
         <Stack.Screen
           name="CreateListingModal"

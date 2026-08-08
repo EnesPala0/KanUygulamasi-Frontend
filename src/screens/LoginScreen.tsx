@@ -14,7 +14,8 @@ import {
   SafeAreaView,
   Alert,
   Modal,
-  ActivityIndicator
+  ActivityIndicator,
+  Image
 } from 'react-native';
 
 export default function LoginScreen({ navigation }: any) {
@@ -71,51 +72,57 @@ export default function LoginScreen({ navigation }: any) {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <KeyboardAvoidingView 
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.container}
-      >
-        {/* Üst Kırmızı Alan (Header) */}
-        <View style={styles.headerContainer}>
-          <View style={styles.logoCircle}>
-            <Ionicons name="water" size={40} color="#E63946" />
+    <View style={{ flex: 1, backgroundColor: '#F3F4F6' }}>
+      <SafeAreaView style={{ flex: 0, backgroundColor: '#E63946' }} />
+      <SafeAreaView style={styles.safeArea}>
+        <KeyboardAvoidingView 
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.container}
+        >
+          {/* Üst Kırmızı Alan (Header) */}
+          <View style={styles.headerContainer}>
+            <View style={styles.logoCircle}>
+              <Image source={require('../../assets/icon.png')} style={{width: 48, height: 48, borderRadius: 24}} />
+            </View>
+            <Text style={styles.appName}>KanBağı</Text>
+            <Text style={styles.welcomeText}>Hoş Geldiniz</Text>
+            <Text style={styles.subText}>Her bağış bir hayat kurtarır.</Text>
           </View>
-          <Text style={styles.appName}>BloodBridge</Text>
-          <Text style={styles.welcomeText}>Hoş Geldiniz</Text>
-          <Text style={styles.subText}>Her bağış bir hayat kurtarır.</Text>
-        </View>
 
-        {/* Form Alanı */}
-        <View style={styles.formContainer}>
-          <Text style={styles.label}>E-posta</Text>
-          <TextInput 
-            style={styles.input}
-            placeholder="ornek@email.com"
-            placeholderTextColor="#A0A0A0"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            value={email}
-            onChangeText={setEmail}
-          />
+          {/* Form Alanı */}
+          <View style={styles.formContainer}>
+            <Text style={styles.label}>E-posta</Text>
+            <View style={styles.inputContainer}>
+              <Ionicons name="mail-outline" size={20} color="#6B7280" style={styles.inputIcon} />
+              <TextInput 
+                style={styles.inputText}
+                placeholder="ornek@email.com"
+                placeholderTextColor="#9CA3AF"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                value={email}
+                onChangeText={setEmail}
+              />
+            </View>
 
-          <Text style={styles.label}>Şifre</Text>
-          <View style={styles.passwordContainer}>
-            <TextInput 
-              style={styles.passwordInput}
-              placeholder="••••••••"
-              placeholderTextColor="#A0A0A0"
-              secureTextEntry={!showPassword}
-              value={password}
-              onChangeText={setPassword}
-            />
-            <TouchableOpacity 
-              style={styles.eyeButton} 
-              onPress={() => setShowPassword(!showPassword)}
-            >
-              <Ionicons name={showPassword ? 'eye-outline' : 'eye-off-outline'} size={22} color="#888" />
-            </TouchableOpacity>
-          </View>
+            <Text style={styles.label}>Şifre</Text>
+            <View style={styles.inputContainer}>
+              <Ionicons name="lock-closed-outline" size={20} color="#6B7280" style={styles.inputIcon} />
+              <TextInput 
+                style={styles.inputText}
+                placeholder="••••••••"
+                placeholderTextColor="#9CA3AF"
+                secureTextEntry={!showPassword}
+                value={password}
+                onChangeText={setPassword}
+              />
+              <TouchableOpacity 
+                style={styles.eyeButton} 
+                onPress={() => setShowPassword(!showPassword)}
+              >
+                <Ionicons name={showPassword ? 'eye-outline' : 'eye-off-outline'} size={20} color="#6B7280" />
+              </TouchableOpacity>
+            </View>
 
           {/* Şifremi Unuttum Linki */}
           <TouchableOpacity 
@@ -194,14 +201,15 @@ export default function LoginScreen({ navigation }: any) {
           </View>
         </View>
       </Modal>
-    </SafeAreaView>
+      </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#E63946',
+    backgroundColor: '#F3F4F6',
   },
   container: {
     flex: 1,
@@ -213,16 +221,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#E63946',
   },
   logoCircle: {
-    width: 50,
-    height: 50,
+    width: 54,
+    height: 54,
     backgroundColor: '#FFF',
-    borderRadius: 25,
+    borderRadius: 27,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 10,
-  },
-  logoText: {
-    fontSize: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
   },
   appName: {
     color: '#FFF',
@@ -242,62 +252,60 @@ const styles = StyleSheet.create({
   },
   formContainer: {
     flex: 0.6,
-    backgroundColor: '#FAFAFA',
+    backgroundColor: '#F3F4F6',
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     paddingHorizontal: 30,
     paddingTop: 40,
+    marginTop: -30,
   },
   label: {
-    color: '#333',
+    color: '#374151',
     fontSize: 14,
     fontWeight: '600',
     marginBottom: 8,
+    marginLeft: 4,
   },
-  input: {
-    backgroundColor: '#FFF',
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    borderRadius: 12,
-    padding: 15,
-    fontSize: 16,
-    marginBottom: 20,
-    color: '#333',
-  },
-  passwordContainer: {
+  inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFF',
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    borderRadius: 12,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
     marginBottom: 20,
+    paddingHorizontal: 15,
+    height: 55,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 1,
   },
-  passwordInput: {
+  inputIcon: {
+    marginRight: 10,
+  },
+  inputText: {
     flex: 1,
-    padding: 15,
     fontSize: 16,
-    color: '#333',
+    color: '#1F2937',
+    height: '100%',
   },
   eyeButton: {
-    paddingHorizontal: 15,
+    paddingLeft: 10,
+    height: '100%',
     justifyContent: 'center',
-    alignItems: 'center',
-  },
-  eyeIcon: {
-    fontSize: 18,
   },
   loginButton: {
-    backgroundColor: '#E63946',
-    borderRadius: 12,
-    padding: 18,
+    backgroundColor: '#EF4444',
+    borderRadius: 14,
+    height: 55,
+    justifyContent: 'center',
     alignItems: 'center',
     marginTop: 10,
-    shadowColor: '#E63946',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 5,
+    shadowColor: '#EF4444',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
+    elevation: 8,
   },
   loginButtonText: {
     color: '#FFF',

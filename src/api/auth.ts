@@ -63,3 +63,9 @@ export const deleteAccount = async () => {
   const response = await apiClient.delete('/me');
   return response.data;
 };
+
+// Başka bir kullanıcının herkese açık (public) profil bilgilerini getiren fonksiyon
+export const getPublicProfile = async (userId: string | number) => {
+  const response = await apiClient.get(`/users/${userId}`);
+  return response.data;
+};

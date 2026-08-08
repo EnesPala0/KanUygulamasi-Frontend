@@ -100,47 +100,59 @@ export default function SignupScreen({ navigation }: any) {
   }
 };
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.container}
-      >
-        <View style={styles.headerContainer}>
-          <Text style={styles.headerTitle}>Gönüllü Ol</Text>
-          <Text style={styles.headerSub}>Kan ver, hayat kurtar. Ailemize katıl.</Text>
-        </View>
+    <View style={{ flex: 1, backgroundColor: '#F3F4F6' }}>
+      <SafeAreaView style={{ flex: 0, backgroundColor: '#E63946' }} />
+      <SafeAreaView style={styles.safeArea}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.container}
+        >
+          <View style={styles.headerContainer}>
+            <Text style={styles.headerTitle}>Gönüllü Ol</Text>
+            <Text style={styles.headerSub}>Kan ver, hayat kurtar. Ailemize katıl.</Text>
+          </View>
 
-        {/* Uzun form olduğu için ScrollView kullanıyoruz */}
-        <ScrollView style={styles.formContainer} showsVerticalScrollIndicator={false}>
+          {/* Uzun form olduğu için ScrollView kullanıyoruz */}
+          <ScrollView style={styles.formContainer} showsVerticalScrollIndicator={false}>
 
           <View style={styles.row}>
             <View style={styles.halfInput}>
               <Text style={styles.label}>Ad</Text>
-              <TextInput style={styles.input} placeholder="Emre" placeholderTextColor="#A0A0A0" value={firstName} onChangeText={setFirstName} />
+              <View style={styles.inputContainer}>
+                <Ionicons name="person-outline" size={18} color="#6B7280" style={styles.inputIcon} />
+                <TextInput style={styles.inputText} placeholder="Emre" placeholderTextColor="#9CA3AF" value={firstName} onChangeText={setFirstName} />
+              </View>
             </View>
             <View style={styles.halfInput}>
               <Text style={styles.label}>Soyad</Text>
-              <TextInput style={styles.input} placeholder="Arslan" placeholderTextColor="#A0A0A0" value={lastName} onChangeText={setLastName} />
+              <View style={styles.inputContainer}>
+                <Ionicons name="person-outline" size={18} color="#6B7280" style={styles.inputIcon} />
+                <TextInput style={styles.inputText} placeholder="Arslan" placeholderTextColor="#9CA3AF" value={lastName} onChangeText={setLastName} />
+              </View>
             </View>
           </View>
 
           <Text style={styles.label}>E-posta</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="ornek@mail.com"
-            placeholderTextColor="#A0A0A0"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            value={email}
-            onChangeText={setEmail}
-          />
+          <View style={styles.inputContainer}>
+            <Ionicons name="mail-outline" size={18} color="#6B7280" style={styles.inputIcon} />
+            <TextInput
+              style={styles.inputText}
+              placeholder="ornek@mail.com"
+              placeholderTextColor="#9CA3AF"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              value={email}
+              onChangeText={setEmail}
+            />
+          </View>
 
           <Text style={styles.label}>Şifre</Text>
-          <View style={styles.passwordContainer}>
+          <View style={styles.inputContainer}>
+            <Ionicons name="lock-closed-outline" size={18} color="#6B7280" style={styles.inputIcon} />
             <TextInput
-              style={styles.passwordInput}
+              style={styles.inputText}
               placeholder="••••••••"
-              placeholderTextColor="#A0A0A0"
+              placeholderTextColor="#9CA3AF"
               secureTextEntry={!showPassword}
               value={password}
               onChangeText={setPassword}
@@ -149,20 +161,23 @@ export default function SignupScreen({ navigation }: any) {
               style={styles.eyeButton}
               onPress={() => setShowPassword(!showPassword)}
             >
-              <Ionicons name={showPassword ? 'eye-outline' : 'eye-off-outline'} size={22} color="#888" />
+              <Ionicons name={showPassword ? 'eye-outline' : 'eye-off-outline'} size={18} color="#6B7280" />
             </TouchableOpacity>
           </View>
 
           <Text style={styles.label}>Telefon Numarası</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="0555 123 45 67"
-            placeholderTextColor="#A0A0A0"
-            keyboardType="phone-pad"
-            maxLength={14}
-            value={phone}
-            onChangeText={formatPhoneNumber}
-          />
+          <View style={styles.inputContainer}>
+            <Ionicons name="call-outline" size={18} color="#6B7280" style={styles.inputIcon} />
+            <TextInput
+              style={styles.inputText}
+              placeholder="0555 123 45 67"
+              placeholderTextColor="#9CA3AF"
+              keyboardType="phone-pad"
+              maxLength={14}
+              value={phone}
+              onChangeText={formatPhoneNumber}
+            />
+          </View>
 
           {/* Şık Kan Grubu Seçici (Pill UI) */}
           <Text style={styles.label}>Kan Grubu</Text>
@@ -189,11 +204,17 @@ export default function SignupScreen({ navigation }: any) {
           <View style={styles.row}>
             <View style={styles.halfInput}>
               <Text style={styles.label}>İl</Text>
-              <TextInput style={styles.input} placeholder="İstanbul" placeholderTextColor="#A0A0A0" value={city} onChangeText={setCity} />
+              <View style={styles.inputContainer}>
+                <Ionicons name="location-outline" size={18} color="#6B7280" style={styles.inputIcon} />
+                <TextInput style={styles.inputText} placeholder="İstanbul" placeholderTextColor="#9CA3AF" value={city} onChangeText={setCity} />
+              </View>
             </View>
             <View style={styles.halfInput}>
               <Text style={styles.label}>İlçe</Text>
-              <TextInput style={styles.input} placeholder="Şişli" placeholderTextColor="#A0A0A0" value={district} onChangeText={setDistrict} />
+              <View style={styles.inputContainer}>
+                <Ionicons name="map-outline" size={18} color="#6B7280" style={styles.inputIcon} />
+                <TextInput style={styles.inputText} placeholder="Şişli" placeholderTextColor="#9CA3AF" value={district} onChangeText={setDistrict} />
+              </View>
             </View>
           </View>
 
@@ -212,14 +233,15 @@ export default function SignupScreen({ navigation }: any) {
           <View style={styles.footerSpacer} />
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+      </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#E63946',
+    backgroundColor: '#F3F4F6',
   },
   container: {
     flex: 1,
@@ -242,11 +264,12 @@ const styles = StyleSheet.create({
   },
   formContainer: {
     flex: 1,
-    backgroundColor: '#FAFAFA',
+    backgroundColor: '#F3F4F6',
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     paddingHorizontal: 25,
     paddingTop: 30,
+    marginTop: -30,
   },
   row: {
     flexDirection: 'row',
@@ -256,42 +279,39 @@ const styles = StyleSheet.create({
     width: '48%',
   },
   label: {
-    color: '#333',
+    color: '#374151',
     fontSize: 14,
     fontWeight: '600',
     marginBottom: 8,
-    marginTop: 10,
+    marginLeft: 4,
   },
-  input: {
-    backgroundColor: '#FFF',
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    borderRadius: 12,
-    padding: 15,
-    fontSize: 15,
-    color: '#333',
-  },
-  passwordContainer: {
+  inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFF',
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    borderRadius: 12,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    marginBottom: 16,
+    paddingHorizontal: 15,
+    height: 52,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 1,
   },
-  passwordInput: {
+  inputIcon: {
+    marginRight: 8,
+  },
+  inputText: {
     flex: 1,
-    padding: 15,
     fontSize: 15,
-    color: '#333',
+    color: '#1F2937',
+    height: '100%',
   },
   eyeButton: {
-    paddingHorizontal: 15,
+    paddingLeft: 10,
+    height: '100%',
     justifyContent: 'center',
-    alignItems: 'center',
-  },
-  eyeIcon: {
-    fontSize: 18,
   },
   bloodTypeContainer: {
     flexDirection: 'row',
@@ -303,35 +323,38 @@ const styles = StyleSheet.create({
   bloodTypeButton: {
     width: '23%',
     paddingVertical: 12,
-    backgroundColor: '#FFF',
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
+    backgroundColor: '#FFFFFF',
     borderRadius: 10,
     alignItems: 'center',
     marginBottom: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 1,
   },
   bloodTypeButtonSelected: {
-    backgroundColor: '#E63946',
-    borderColor: '#E63946',
+    backgroundColor: '#EF4444',
   },
   bloodTypeText: {
-    color: '#333',
+    color: '#374151',
     fontWeight: '600',
   },
   bloodTypeTextSelected: {
     color: '#FFF',
   },
   signupButton: {
-    backgroundColor: '#E63946',
-    borderRadius: 12,
-    padding: 18,
+    backgroundColor: '#EF4444',
+    borderRadius: 14,
+    height: 55,
+    justifyContent: 'center',
     alignItems: 'center',
     marginTop: 20,
-    shadowColor: '#E63946',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 5,
+    shadowColor: '#EF4444',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
+    elevation: 8,
   },
   signupButtonText: {
     color: '#FFF',

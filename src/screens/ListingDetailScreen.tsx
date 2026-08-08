@@ -107,7 +107,8 @@ export default function ListingDetailScreen({ route, navigation }: any) {
             urgency: freshReq.urgency_level || prev.urgency,
             medicalNote: freshReq.medical_note !== undefined ? freshReq.medical_note : prev.medicalNote,
             status: newStatus,
-            isMine: !!checkMine
+            isMine: !!checkMine,
+            ownerId: ownerId || prev.ownerId
           }));
         }
       } catch (error) {
@@ -125,7 +126,7 @@ export default function ListingDetailScreen({ route, navigation }: any) {
   const handleShare = async () => {
     try {
       await Share.share({
-        message: `Acil Kan İhtiyacı! ${listingData.patientName} için ${listingData.hospital} (${listingData.location}) hastanesinde ${listingData.bloodType} kan grubuna ihtiyaç var. Lütfen BloodBridge uygulamasından başvurarak destek olun. Her bağış bir hayat kurtarır!`,
+        message: `Acil Kan İhtiyacı! ${listingData.patientName} için ${listingData.hospital} (${listingData.location}) hastanesinde ${listingData.bloodType} kan grubuna ihtiyaç var. Lütfen KanBağı uygulamasından başvurarak destek olun. Her bağış bir hayat kurtarır!`,
       });
     } catch (error) {
       console.log('Share error:', error);
@@ -246,16 +247,25 @@ export default function ListingDetailScreen({ route, navigation }: any) {
           </View>
         )}
 
-        {/* Patient Card */}
-        <View style={styles.patientCard}>
+        {/* Patient Card - Tıklanabilir Public Profile yönlendirmesi */}
+        <TouchableOpacity 
+          style={styles.patientCard} 
+          onPress={() => {
+            if (listingData.ownerId) {
+              navigation.navigate('PublicProfile', { userId: listingData.ownerId });
+            }
+          }}
+          activeOpacity={0.7}
+        >
           <View style={[styles.bloodBadgeBig, { backgroundColor: getBloodTypeBgColor(listingData.bloodType) }]}>
             <Text style={styles.bloodBadgeTextBig}>{listingData.bloodType}</Text>
           </View>
           <View style={styles.patientInfo}>
             <Text style={styles.patientName}>{listingData.patientName}</Text>
-            <Text style={styles.patientLabel}>Hasta</Text>
+            <Text style={styles.patientLabel}>Hasta Profili</Text>
           </View>
-        </View>
+          <Ionicons name="chevron-forward" size={24} color="#C4C4C4" />
+        </TouchableOpacity>
 
         {/* Details Container */}
         <View style={styles.detailsContainer}>
