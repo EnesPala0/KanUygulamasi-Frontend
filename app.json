@@ -1,21 +1,27 @@
 {
   "expo": {
-    "name": "BloodApp",
-    "slug": "bloodapp",
+    "name": "KanBağı",
+    "slug": "kanbagi",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.enespala.kanbagi",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "KanBağı, yakınınızdaki acil kan ihtiyaçlarını bulmak ve eşleştirmek için konumunuzu kullanır.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "KanBağı, uygulama arka plandayken bile 100km çevrenizdeki acil kan ilanlarından anında haberdar olmanız için konumunuzu kullanır."
+      }
     },
     "android": {
+      "package": "com.enespala.kanbagi",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -33,7 +39,9 @@
     },
     "owner": "enespala07s-team",
     "plugins": [
-      "expo-secure-store"
+      "expo-secure-store",
+      "expo-location",
+      "expo-notifications"
     ]
   }
 }
