@@ -30,7 +30,6 @@ const getUrgencyColor = (urgency: string) => {
 };
 
 export default function CreateListingScreen({ navigation }: any) {
-  const [patientName, setPatientName] = useState('');
   const [bloodType, setBloodType] = useState('');
   const [hospital, setHospital] = useState('');
   const [city, setCity] = useState('');
@@ -47,7 +46,7 @@ export default function CreateListingScreen({ navigation }: any) {
   );
 
   const handleSubmit = async () => {
-    if (!patientName || !bloodType || !hospital || !city || !district || !unitsNeeded || !urgency) {
+    if (!bloodType || !hospital || !city || !district || !unitsNeeded || !urgency) {
       Alert.alert('Hata', 'Lütfen tüm zorunlu alanları doldurun.');
       return;
     }
@@ -55,7 +54,6 @@ export default function CreateListingScreen({ navigation }: any) {
     setIsSubmitting(true);
     try {
       await createBloodRequest({
-        patient_name: patientName,
         required_blood_type: bloodType,
         hospital_name: hospital,
         city: city,
@@ -109,16 +107,6 @@ export default function CreateListingScreen({ navigation }: any) {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
-          <View style={styles.formGroup}>
-            <Text style={styles.label}>Hasta Adı*</Text>
-            <TextInput 
-              style={styles.input} 
-              value={patientName}
-              onChangeText={setPatientName}
-              placeholder="Hasta adını ve soyadını girin"
-            />
-          </View>
-
           <View style={styles.formGroup}>
             <Text style={styles.label}>Kan Grubu*</Text>
             <View style={styles.pillContainer}>

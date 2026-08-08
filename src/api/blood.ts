@@ -24,7 +24,6 @@ export const getBloodRequestById = async (id: string | number) => {
 
 // Yeni kan ilanı oluşturma
 export const createBloodRequest = async (data: {
-  patient_name: string;
   required_blood_type: string;
   hospital_name: string;
   city: string;
