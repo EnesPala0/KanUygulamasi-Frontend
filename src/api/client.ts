@@ -1,5 +1,5 @@
 import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 import { logoutAndRedirect } from '../navigation/navigationRef';
 
 const BASE_URL = 'http://192.168.1.6:8080/api';
@@ -15,7 +15,7 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use(
   async (config) => {
     // 1. İstek yola çıkmadan hemen önce cüzdana (hafızaya) bak
-    const token = await AsyncStorage.getItem('userToken');
+    const token = await SecureStore.getItemAsync('userToken');
     
     // 2. Eğer cüzdanda bilet (token) varsa, bunu Go'nun istediği formatta başlığa ekle
     if (token) {

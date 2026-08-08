@@ -31,6 +31,9 @@
         "projectId": "c8cd4ba6-57b3-4ba5-bd19-e9b94f4bb117"
       }
     },
-    "owner": "enespala07s-team"
+    "owner": "enespala07s-team",
+    "plugins": [
+      "expo-secure-store"
+    ]
   }
 }

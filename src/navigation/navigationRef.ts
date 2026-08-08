@@ -1,11 +1,11 @@
 import { createNavigationContainerRef } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 
 export const navigationRef = createNavigationContainerRef<any>();
 
 export const logoutAndRedirect = async () => {
   try {
-    await AsyncStorage.removeItem('userToken');
+    await SecureStore.deleteItemAsync('userToken');
     if (navigationRef.isReady()) {
       navigationRef.reset({
         index: 0,

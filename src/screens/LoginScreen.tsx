@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { loginUser, forgotPassword } from '../api/auth';
 import { getErrorMessage } from '../utils/errors';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 import { Ionicons } from '@expo/vector-icons';
 import { 
   StyleSheet, 
@@ -38,7 +38,7 @@ export default function LoginScreen({ navigation }: any) {
       console.log("Sunucudan Gelen Veri:", data);
       
       if (data.token) {
-         await AsyncStorage.setItem('userToken', data.token);
+         await SecureStore.setItemAsync('userToken', data.token);
       }
       
       navigation.reset({ index: 0, routes: [{ name: 'Main' }] }); 
