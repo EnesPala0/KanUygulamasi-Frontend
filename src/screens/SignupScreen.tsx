@@ -67,6 +67,15 @@ export default function SignupScreen({ navigation }: any) {
     return;
   }
 
+  // Şifre Güvenlik Kontrolü: En az 8 karakter, 1 büyük harf, 1 rakam
+  if (password.length < 8 || !/[A-Z]/.test(password) || !/[0-9]/.test(password)) {
+    Alert.alert(
+      'Zayıf Şifre', 
+      'Şifreniz en az 8 karakter uzunluğunda olmalı ve en az bir büyük harf ile bir rakam içermelidir.'
+    );
+    return;
+  }
+
   // 2-B: Telefon numarasının 05 ile başlamasını ve tam 11 hane olmasını kontrol et
   const cleanPhone = phone.replace(/\D/g, '');
   if (!cleanPhone.startsWith('05') || cleanPhone.length !== 11) {
