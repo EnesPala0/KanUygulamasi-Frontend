@@ -232,11 +232,11 @@ export default function HomeScreen({ navigation }: any) {
           <View style={[styles.bloodBadge, { backgroundColor: getBloodTypeBgColor(item.bloodType) }]}>
             <Text style={styles.bloodBadgeText}>{item.bloodType}</Text>
           </View>
-          <View>
-            <Text style={styles.patientName}>{item.patientName}</Text>
+          <View style={{ flex: 1, paddingRight: 8 }}>
+            <Text style={styles.patientName} numberOfLines={1}>{item.patientName}</Text>
             <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 2 }}>
-              <Ionicons name="location-outline" size={13} color="#666" style={{ marginRight: 3 }} />
-              <Text style={styles.hospital}>{item.hospital}, {item.location}</Text>
+              <Ionicons name="location-outline" size={13} color="#666" style={{ marginRight: 3, flexShrink: 0 }} />
+              <Text style={styles.hospital} numberOfLines={1} ellipsizeMode="tail">{item.hospital}, {item.location}</Text>
             </View>
           </View>
         </View>
@@ -246,7 +246,7 @@ export default function HomeScreen({ navigation }: any) {
         </View>
       </View>
       <View style={styles.cardFooter}>
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', flexShrink: 0 }}>
           <Ionicons name="water-outline" size={15} color="#E63946" style={{ marginRight: 4 }} />
           <Text style={styles.footerText}>{item.unitsNeeded} Ünite</Text>
         </View>
@@ -255,9 +255,10 @@ export default function HomeScreen({ navigation }: any) {
           item.status === 'Tamamlandı' ? { backgroundColor: '#E8F8F5', borderColor: '#2EC4B6' } :
           item.status === 'Onaylandı' ? { backgroundColor: '#EBF5FB', borderColor: '#3498DB' } :
           item.status === 'İptal Edildi' ? { backgroundColor: '#FDEDEC', borderColor: '#E63946' } :
-          { backgroundColor: '#F4F6F7', borderColor: '#D5D8DC' }
+          { backgroundColor: '#F4F6F7', borderColor: '#D5D8DC' },
+          { flexShrink: 1, marginLeft: 8 }
         ]}>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', flexShrink: 1 }}>
             <Ionicons 
               name={
                 item.status === 'Tamamlandı' ? 'checkmark-circle-outline' :
@@ -274,12 +275,16 @@ export default function HomeScreen({ navigation }: any) {
               } 
               style={{ marginRight: 4 }} 
             />
-            <Text style={[
+            <Text 
+              numberOfLines={1} 
+              ellipsizeMode="tail"
+              style={[
               styles.statusTextHome,
               item.status === 'Tamamlandı' ? { color: '#16A085', fontWeight: 'bold' } :
               item.status === 'Onaylandı' ? { color: '#2980B9', fontWeight: 'bold' } :
               item.status === 'İptal Edildi' ? { color: '#C0392B', fontWeight: 'bold' } :
-              { color: '#5D6D7E', fontWeight: '600' }
+              { color: '#5D6D7E', fontWeight: '600' },
+              { flexShrink: 1 }
             ]}>
               {item.status === 'Tamamlandı' ? 'İhtiyaç Karşılandı' :
                item.status === 'Onaylandı' ? 'Gönüllü Bulundu' :

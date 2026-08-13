@@ -70,7 +70,6 @@ export default function CreateListingScreen({ navigation }: any) {
           { 
             text: 'Tamam', 
             onPress: () => {
-              setPatientName('');
               setBloodType('');
               setHospital('');
               setCity('');

@@ -97,10 +97,10 @@ export default function SignupScreen({ navigation }: any) {
     );
     
     console.log("Go'dan Gelen Başarı Yanıtı:", data);
-    Alert.alert('Süper!', 'Hesabın başarıyla oluşturuldu. Şimdi giriş yapabilirsin.');
+    Alert.alert('Neredeyse Bitti!', 'Hesabınız oluşturuldu. Lütfen e-posta adresinize gönderdiğimiz 6 haneli doğrulama kodunu girin.');
     
-    // İşlem başarılı, Login'e yolla
-    navigation.navigate('Login');
+    // İşlem başarılı, OTP Doğrulama ekranına yolla
+    navigation.navigate('OTPVerification', { email: email.trim() });
 
   } catch (error: any) {
     console.log("Kayıt Hatası detay:", error?.response?.data || error?.message);
@@ -172,6 +172,22 @@ export default function SignupScreen({ navigation }: any) {
             >
               <Ionicons name={showPassword ? 'eye-outline' : 'eye-off-outline'} size={18} color="#6B7280" />
             </TouchableOpacity>
+          </View>
+
+          {/* Şifre Güvenlik Kriterleri */}
+          <View style={styles.passwordCriteriaContainer}>
+            <View style={styles.criteriaRow}>
+              <Ionicons name={password.length >= 8 ? "checkmark-circle" : "ellipse-outline"} size={14} color={password.length >= 8 ? "#10B981" : "#9CA3AF"} />
+              <Text style={[styles.criteriaText, password.length >= 8 && styles.criteriaTextValid]}>En az 8 karakter</Text>
+            </View>
+            <View style={styles.criteriaRow}>
+              <Ionicons name={/[A-Z]/.test(password) ? "checkmark-circle" : "ellipse-outline"} size={14} color={/[A-Z]/.test(password) ? "#10B981" : "#9CA3AF"} />
+              <Text style={[styles.criteriaText, /[A-Z]/.test(password) && styles.criteriaTextValid]}>En az 1 büyük harf</Text>
+            </View>
+            <View style={styles.criteriaRow}>
+              <Ionicons name={/[0-9]/.test(password) ? "checkmark-circle" : "ellipse-outline"} size={14} color={/[0-9]/.test(password) ? "#10B981" : "#9CA3AF"} />
+              <Text style={[styles.criteriaText, /[0-9]/.test(password) && styles.criteriaTextValid]}>En az 1 rakam</Text>
+            </View>
           </View>
 
           <Text style={styles.label}>Telefon Numarası</Text>
@@ -351,6 +367,24 @@ const styles = StyleSheet.create({
   },
   bloodTypeTextSelected: {
     color: '#FFF',
+  },
+  passwordCriteriaContainer: {
+    marginTop: -10,
+    marginBottom: 20,
+    paddingHorizontal: 4,
+    gap: 4,
+  },
+  criteriaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  criteriaText: {
+    fontSize: 12,
+    color: '#9CA3AF',
+  },
+  criteriaTextValid: {
+    color: '#10B981',
   },
   signupButton: {
     backgroundColor: '#EF4444',

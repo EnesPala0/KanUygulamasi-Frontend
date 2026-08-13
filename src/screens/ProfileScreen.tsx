@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, SafeAreaView, ScrollView, StatusBar, Alert, Platform, ActivityIndicator, RefreshControl, Modal, TextInput } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, SafeAreaView, ScrollView, StatusBar, Alert, Platform, ActivityIndicator, RefreshControl, Modal, TextInput, KeyboardAvoidingView } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { getMyApplications, getMyCreatedListings, getUserProfile, updateUserProfile, getVolunteers } from '../api/blood';
 import { changePassword, deleteAccount } from '../api/auth';
@@ -544,108 +544,116 @@ export default function ProfileScreen({ navigation }: any) {
 
       {/* PROFİL DÜZENLEME MODALI */}
       <Modal visible={isEditModalVisible} animationType="slide" transparent={true}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Profili Düzenle</Text>
-            
-            <Text style={styles.inputLabel}>Ad</Text>
-            <TextInput 
-              style={styles.modalInput} 
-              value={editFirstName} 
-              onChangeText={setEditFirstName}
-              placeholder="Adınız"
-            />
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
+          <View style={styles.modalOverlay}>
+            <View style={[styles.modalContent, { maxHeight: '90%' }]}>
+              <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+                <Text style={styles.modalTitle}>Profili Düzenle</Text>
+                
+                <Text style={styles.inputLabel}>Ad</Text>
+                <TextInput 
+                  style={styles.modalInput} 
+                  value={editFirstName} 
+                  onChangeText={setEditFirstName}
+                  placeholder="Adınız"
+                />
 
-            <Text style={styles.inputLabel}>Soyad</Text>
-            <TextInput 
-              style={styles.modalInput} 
-              value={editLastName} 
-              onChangeText={setEditLastName}
-              placeholder="Soyadınız"
-            />
+                <Text style={styles.inputLabel}>Soyad</Text>
+                <TextInput 
+                  style={styles.modalInput} 
+                  value={editLastName} 
+                  onChangeText={setEditLastName}
+                  placeholder="Soyadınız"
+                />
 
-            <Text style={styles.inputLabel}>Telefon Numarası</Text>
-            <TextInput 
-              style={styles.modalInput} 
-              value={editPhone} 
-              onChangeText={formatEditPhone}
-              keyboardType="phone-pad"
-              maxLength={14}
-              placeholder="0555 123 45 67"
-            />
+                <Text style={styles.inputLabel}>Telefon Numarası</Text>
+                <TextInput 
+                  style={styles.modalInput} 
+                  value={editPhone} 
+                  onChangeText={formatEditPhone}
+                  keyboardType="phone-pad"
+                  maxLength={14}
+                  placeholder="0555 123 45 67"
+                />
 
-            <Text style={styles.inputLabel}>Kan Grubu</Text>
-            <TextInput 
-              style={styles.modalInput} 
-              value={editBloodType} 
-              onChangeText={setEditBloodType}
-              autoCapitalize="characters"
-              maxLength={3} // AB+ en fazla 3 karakterdir
-              placeholder="Örn: A+, 0-"
-            />
+                <Text style={styles.inputLabel}>Kan Grubu</Text>
+                <TextInput 
+                  style={styles.modalInput} 
+                  value={editBloodType} 
+                  onChangeText={setEditBloodType}
+                  autoCapitalize="characters"
+                  maxLength={3}
+                  placeholder="Örn: A+, 0-"
+                />
 
-            <Text style={styles.inputLabel}>Şehir</Text>
-            <TextInput 
-              style={styles.modalInput} 
-              value={editCity} 
-              onChangeText={setEditCity}
-              placeholder="Örn: Antalya"
-            />
+                <Text style={styles.inputLabel}>Şehir</Text>
+                <TextInput 
+                  style={styles.modalInput} 
+                  value={editCity} 
+                  onChangeText={setEditCity}
+                  placeholder="Örn: Antalya"
+                />
 
-            <View style={styles.modalButtons}>
-              <TouchableOpacity style={styles.modalCancelBtn} onPress={() => setEditModalVisible(false)} disabled={isUpdating}>
-                <Text style={styles.modalCancelBtnText}>İptal</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.modalSaveBtn} onPress={handleUpdateProfile} disabled={isUpdating}>
-                {isUpdating ? (
-                  <ActivityIndicator color="#FFF" size="small" />
-                ) : (
-                  <Text style={styles.modalSaveBtnText}>Kaydet</Text>
-                )}
-              </TouchableOpacity>
+                <View style={styles.modalButtons}>
+                  <TouchableOpacity style={styles.modalCancelBtn} onPress={() => setEditModalVisible(false)} disabled={isUpdating}>
+                    <Text style={styles.modalCancelBtnText}>İptal</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.modalSaveBtn} onPress={handleUpdateProfile} disabled={isUpdating}>
+                    {isUpdating ? (
+                      <ActivityIndicator color="#FFF" size="small" />
+                    ) : (
+                      <Text style={styles.modalSaveBtnText}>Kaydet</Text>
+                    )}
+                  </TouchableOpacity>
+                </View>
+              </ScrollView>
             </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
 
       {/* ŞİFRE DEĞİŞTİRME MODALI */}
       <Modal visible={isPasswordModalVisible} animationType="fade" transparent={true}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>🔐 Şifre Değiştir</Text>
-            
-            <Text style={styles.inputLabel}>Mevcut Şifre</Text>
-            <TextInput 
-              style={styles.modalInput} 
-              value={oldPassword} 
-              onChangeText={setOldPassword}
-              secureTextEntry={true}
-              placeholder="••••••••"
-            />
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
+          <View style={styles.modalOverlay}>
+            <View style={[styles.modalContent, { maxHeight: '90%' }]}>
+              <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+                <Text style={styles.modalTitle}>🔐 Şifre Değiştir</Text>
+                
+                <Text style={styles.inputLabel}>Mevcut Şifre</Text>
+                <TextInput 
+                  style={styles.modalInput} 
+                  value={oldPassword} 
+                  onChangeText={setOldPassword}
+                  secureTextEntry={true}
+                  placeholder="••••••••"
+                />
 
-            <Text style={styles.inputLabel}>Yeni Şifre</Text>
-            <TextInput 
-              style={styles.modalInput} 
-              value={newPassword} 
-              onChangeText={setNewPassword}
-              secureTextEntry={true}
-              placeholder="En az 6 karakter"
-            />
+                <Text style={styles.inputLabel}>Yeni Şifre</Text>
+                <TextInput 
+                  style={styles.modalInput} 
+                  value={newPassword} 
+                  onChangeText={setNewPassword}
+                  secureTextEntry={true}
+                  placeholder="En az 6 karakter"
+                />
 
-            <View style={styles.modalButtons}>
-              <TouchableOpacity style={styles.modalCancelBtn} onPress={() => setPasswordModalVisible(false)} disabled={isChangingPassword}>
-                <Text style={styles.modalCancelBtnText}>İptal</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.modalSaveBtn} onPress={handleChangePassword} disabled={isChangingPassword}>
-                {isChangingPassword ? (
-                  <ActivityIndicator color="#FFF" size="small" />
-                ) : (
-                  <Text style={styles.modalSaveBtnText}>Güncelle</Text>
-                )}
-              </TouchableOpacity>
+                <View style={styles.modalButtons}>
+                  <TouchableOpacity style={styles.modalCancelBtn} onPress={() => setPasswordModalVisible(false)} disabled={isChangingPassword}>
+                    <Text style={styles.modalCancelBtnText}>İptal</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.modalSaveBtn} onPress={handleChangePassword} disabled={isChangingPassword}>
+                    {isChangingPassword ? (
+                      <ActivityIndicator color="#FFF" size="small" />
+                    ) : (
+                      <Text style={styles.modalSaveBtnText}>Güncelle</Text>
+                    )}
+                  </TouchableOpacity>
+                </View>
+              </ScrollView>
             </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
 
     </SafeAreaView>
@@ -674,22 +682,21 @@ const styles = StyleSheet.create({
   mainTabTextActive: { color: '#E63946' },
   tabBadge: { backgroundColor: '#E63946', borderRadius: 10, paddingHorizontal: 6, paddingVertical: 2, marginLeft: 4 },
   tabBadgeText: { color: '#FFF', fontSize: 10, fontWeight: 'bold' },
-  scrollContent: { padding: 16 },
-  tabContent: { flex: 1 },
+  scrollContent: { padding: 16, flexGrow: 1 },
+  tabContent: { width: '100%' },
   card: { backgroundColor: '#FFF', borderRadius: 12, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: '#E0E0E0' },
   cardTitle: { fontSize: 16, fontWeight: 'bold', color: '#333', marginBottom: 16 },
   infoRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#F0F0F0' },
   infoLabel: { fontSize: 14, color: '#666' },
   infoValue: { fontSize: 14, fontWeight: '500', color: '#333' },
-  statsRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
+  statsRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20, width: '100%' },
   statCard: { 
-    flex: 1, 
+    width: '31%',
     backgroundColor: '#FFF', 
     borderRadius: 16, 
     paddingVertical: 18, 
-    paddingHorizontal: 8,
+    paddingHorizontal: 4,
     alignItems: 'center', 
-    marginHorizontal: 5,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.05,

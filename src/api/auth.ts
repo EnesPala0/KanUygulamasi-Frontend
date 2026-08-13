@@ -69,3 +69,12 @@ export const getPublicProfile = async (userId: string | number) => {
   const response = await apiClient.get(`/users/${userId}`);
   return response.data;
 };
+
+// Yeni kayıt olan kullanıcının e-posta doğrulama fonksiyonu
+export const verifyUserOTP = async (email: string, code: string) => {
+  const response = await apiClient.post('/users/verify', {
+    email: email,
+    code: code
+  });
+  return response.data;
+};

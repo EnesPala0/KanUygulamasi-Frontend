@@ -17,6 +17,7 @@ import ProfileScreen from './src/screens/ProfileScreen';
 import MyListingDetailScreen from './src/screens/MyListingDetailScreen';
 import NotificationsScreen from './src/screens/NotificationsScreen';
 import PublicProfileScreen from './src/screens/PublicProfileScreen';
+import OTPVerificationScreen from './src/screens/OTPVerificationScreen';
 
 // Navigator'lar
 const Stack = createNativeStackNavigator();
@@ -172,6 +173,7 @@ export default function App() {
         {/* Auth */}
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Signup" component={SignupScreen} />
+        <Stack.Screen name="OTPVerification" component={OTPVerificationScreen} />
         {/* Ana Uygulama */}
         <Stack.Screen name="Main" component={MainTabs} options={{ gestureEnabled: false }} />
         {/* Global Detay Ekranları */}
