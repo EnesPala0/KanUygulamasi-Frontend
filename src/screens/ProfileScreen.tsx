@@ -293,8 +293,13 @@ export default function ProfileScreen({ navigation }: any) {
       Alert.alert("Uyarı", "Lütfen mevcut ve yeni şifrenizi giriniz.");
       return;
     }
-    if (newPassword.length < 6) {
-      Alert.alert("Uyarı", "Yeni şifre en az 6 karakter olmalıdır.");
+    // Şifre kuralları: en az 8 karakter, 1 büyük harf ve 1 rakam
+    const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
+    if (!passwordRegex.test(newPassword)) {
+      Alert.alert(
+        "Geçersiz Şifre",
+        "Yeni şifreniz en az 8 karakter uzunluğunda olmalı, en az 1 büyük harf ve 1 rakam içermelidir."
+      );
       return;
     }
     try {
@@ -635,8 +640,11 @@ export default function ProfileScreen({ navigation }: any) {
                   value={newPassword} 
                   onChangeText={setNewPassword}
                   secureTextEntry={true}
-                  placeholder="En az 6 karakter"
+                  placeholder="••••••••"
                 />
+                <Text style={{ fontSize: 12, color: '#666', marginTop: -8, marginBottom: 16, marginLeft: 4 }}>
+                  En az 8 karakter, 1 büyük harf ve 1 rakam içermelidir.
+                </Text>
 
                 <View style={styles.modalButtons}>
                   <TouchableOpacity style={styles.modalCancelBtn} onPress={() => setPasswordModalVisible(false)} disabled={isChangingPassword}>

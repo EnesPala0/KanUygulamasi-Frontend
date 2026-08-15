@@ -61,8 +61,19 @@ export default function LoginScreen({ navigation }: any) {
       setForgotLoading(true);
       const res = await forgotPassword(forgotEmail.trim());
       setForgotModalVisible(false);
-      setForgotEmail('');
-      Alert.alert('Talimat Gönderildi', res.message || 'Şifre sıfırlama talimatları e-posta adresinize iletildi.');
+      Alert.alert(
+        'Talimat Gönderildi', 
+        res.message || 'Şifre sıfırlama kodu e-posta adresinize iletildi.',
+        [
+          {
+            text: 'Tamam',
+            onPress: () => {
+              navigation.navigate('ResetPasswordScreen', { email: forgotEmail.trim() });
+              setForgotEmail('');
+            }
+          }
+        ]
+      );
     } catch (error: any) {
       console.log('Forgot password error:', error);
       const msg = getErrorMessage(error, 'Bu e-posta adresiyle kayıtlı bir hesap bulunamadı.');

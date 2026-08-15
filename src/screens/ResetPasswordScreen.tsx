@@ -13,7 +13,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import axios from 'axios';
+import { resetPassword } from '../api/auth';
+import { getErrorMessage } from '../utils/errors';
 
 const PRIMARY_COLOR = '#E53E3E';
 
@@ -25,6 +26,11 @@ export default function ResetPasswordScreen({ route, navigation }: any) {
   const [newPassword, setNewPassword] = useState('');
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Şifre kuralları
+  const hasMinLength = newPassword.length >= 8;
+  const hasUppercase = /[A-Z]/.test(newPassword);
+  const hasNumber = /\d/.test(newPassword);
 
   const handleSaveNewPassword = async () => {
     if (!code.trim()) {
@@ -40,23 +46,18 @@ export default function ResetPasswordScreen({ route, navigation }: any) {
       return;
     }
 
-    // Şifre kuralları: en az 8 karakter, 1 büyük harf ve 1 rakam
-    const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
-    if (!passwordRegex.test(newPassword)) {
+    // Şifre kuralları kontrolü
+    if (!hasMinLength || !hasUppercase || !hasNumber) {
       Alert.alert(
         'Geçersiz Şifre',
-        'Şifreniz en az 8 karakter uzunluğunda olmalı, en az 1 büyük harf ve 1 rakam içermelidir.'
+        'Şifreniz belirlenen güvenlik kurallarını (en az 8 karakter, 1 büyük harf ve 1 rakam) sağlamalıdır.'
       );
       return;
     }
 
     setIsLoading(true);
     try {
-      await axios.post('/api/users/reset-password', {
-        email,
-        code,
-        new_password: newPassword,
-      });
+      await resetPassword(email, code, newPassword);
 
       Alert.alert(
         'Başarılı',
@@ -69,10 +70,9 @@ export default function ResetPasswordScreen({ route, navigation }: any) {
         ]
       );
     } catch (error: any) {
-      Alert.alert(
-        'Hata',
-        error?.response?.data?.message || 'Şifre sıfırlanamadı. Lütfen kodunuzu ve bağlantınızı kontrol edin.'
-      );
+      console.log('Reset password error:', error);
+      const errMsg = getErrorMessage(error, 'Şifre sıfırlanamadı. Lütfen kodunuzu kontrol edip tekrar deneyin.');
+      Alert.alert('Hata', errMsg);
     } finally {
       setIsLoading(false);
     }
@@ -142,6 +142,22 @@ export default function ResetPasswordScreen({ route, navigation }: any) {
                   color="#666"
                 />
               </TouchableOpacity>
+            </View>
+
+            {/* Dinamik Şifre Kuralları Listesi */}
+            <View style={styles.rulesContainer}>
+              <View style={styles.ruleItem}>
+                <Ionicons name="checkmark-circle" size={16} color={hasMinLength ? '#10B981' : '#D1D5DB'} />
+                <Text style={[styles.ruleText, hasMinLength && styles.ruleTextValid]}>En az 8 karakter</Text>
+              </View>
+              <View style={styles.ruleItem}>
+                <Ionicons name="checkmark-circle" size={16} color={hasUppercase ? '#10B981' : '#D1D5DB'} />
+                <Text style={[styles.ruleText, hasUppercase && styles.ruleTextValid]}>En az 1 büyük harf</Text>
+              </View>
+              <View style={styles.ruleItem}>
+                <Ionicons name="checkmark-circle" size={16} color={hasNumber ? '#10B981' : '#D1D5DB'} />
+                <Text style={[styles.ruleText, hasNumber && styles.ruleTextValid]}>En az 1 rakam</Text>
+              </View>
             </View>
 
             <TouchableOpacity
@@ -260,5 +276,24 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     letterSpacing: 0.5,
+  },
+  rulesContainer: {
+    marginTop: -15,
+    marginBottom: 20,
+    marginLeft: 4,
+  },
+  ruleItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  ruleText: {
+    marginLeft: 8,
+    fontSize: 13,
+    color: '#9CA3AF',
+    fontWeight: '500',
+  },
+  ruleTextValid: {
+    color: '#10B981',
   },
 });

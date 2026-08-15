@@ -78,3 +78,13 @@ export const verifyUserOTP = async (email: string, code: string) => {
   });
   return response.data;
 };
+
+// Şifre sıfırlama (kod ile yeni şifre belirleme) fonksiyonu
+export const resetPassword = async (email: string, code: string, newPassword: string) => {
+  const response = await apiClient.post('/users/reset-password', {
+    email: email,
+    code: code,
+    new_password: newPassword
+  });
+  return response.data;
+};
