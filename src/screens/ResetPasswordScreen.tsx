@@ -112,7 +112,7 @@ export default function ResetPasswordScreen({ route, navigation }: any) {
                 placeholder="000000"
                 placeholderTextColor="#999"
                 value={code}
-                onChangeText={setCode}
+                onChangeText={(text) => setCode(text.replace(/[^0-9]/g, ''))}
                 keyboardType="number-pad"
                 maxLength={6}
               />

@@ -9,6 +9,7 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -35,10 +36,20 @@ export default function ForgotPasswordScreen({ navigation }: any) {
 
     setIsLoading(true);
     try {
-      await axios.post('/api/users/forgot-password', { email });
+      // Axios instance'ınızda baseURL ayarlı değilse, buraya tam URL (http://...) yazmanız gerekebilir.
+      await axios.post('/api/users/forgot-password', { email: email.trim() });
       
-      // Başarılı olursa (HTTP 200/2xx) yönlendirme
-      navigation.navigate('ResetPasswordScreen', { email });
+      // Başarılı olursa kullanıcıya bilgi verip yönlendiriyoruz
+      Alert.alert(
+        'Başarılı',
+        'Şifre sıfırlama kodu e-posta adresinize gönderildi.',
+        [
+          {
+            text: 'Tamam',
+            onPress: () => navigation.navigate('ResetPasswordScreen', { email: email.trim() }),
+          }
+        ]
+      );
     } catch (error: any) {
       Alert.alert(
         'Hata',
@@ -55,47 +66,53 @@ export default function ForgotPasswordScreen({ navigation }: any) {
         style={styles.keyboardView} 
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <TouchableOpacity 
-          style={styles.backButton} 
-          onPress={() => navigation.goBack()}
+        <ScrollView 
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
         >
-          <Ionicons name="arrow-back" size={24} color="#333" />
-        </TouchableOpacity>
-
-        <View style={styles.content}>
-          <View style={styles.headerContainer}>
-            <Text style={styles.title}>Şifremi Unuttum</Text>
-            <Text style={styles.subtitle}>
-              Hesabınızla ilişkili e-posta adresini girin, size bir kurtarma kodu gönderelim.
-            </Text>
-          </View>
-
-          <View style={styles.inputContainer}>
-            <Ionicons name="mail-outline" size={20} color="#666" style={styles.icon} />
-            <TextInput
-              style={styles.input}
-              placeholder="E-posta Adresi"
-              placeholderTextColor="#999"
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-          </View>
-
-          <TouchableOpacity
-            style={[styles.button, isLoading && styles.buttonDisabled]}
-            onPress={handleResetPassword}
-            disabled={isLoading}
+          <TouchableOpacity 
+            style={styles.backButton} 
+            onPress={() => navigation.goBack()}
           >
-            {isLoading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.buttonText}>Şifremi Sıfırla</Text>
-            )}
+            <Ionicons name="arrow-back" size={24} color="#333" />
           </TouchableOpacity>
-        </View>
+
+          <View style={styles.content}>
+            <View style={styles.headerContainer}>
+              <Text style={styles.title}>Şifremi Unuttum</Text>
+              <Text style={styles.subtitle}>
+                Hesabınızla ilişkili e-posta adresini girin, size bir kurtarma kodu gönderelim.
+              </Text>
+            </View>
+
+            <View style={styles.inputContainer}>
+              <Ionicons name="mail-outline" size={20} color="#666" style={styles.icon} />
+              <TextInput
+                style={styles.input}
+                placeholder="E-posta Adresi"
+                placeholderTextColor="#999"
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+            </View>
+
+            <TouchableOpacity
+              style={[styles.button, isLoading && styles.buttonDisabled]}
+              onPress={handleResetPassword}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.buttonText}>Şifremi Sıfırla</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -108,6 +125,10 @@ const styles = StyleSheet.create({
   },
   keyboardView: {
     flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 40,
   },
   backButton: {
     padding: 16,
