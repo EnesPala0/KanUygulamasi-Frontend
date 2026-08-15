@@ -2,10 +2,21 @@ import React, { useEffect } from 'react';
 import { View, TouchableOpacity, StyleSheet, Text, ActivityIndicator } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import * as SecureStore from 'expo-secure-store';
+import * as Notifications from 'expo-notifications';
+import * as Linking from 'expo-linking';
 import { navigationRef } from './src/navigation/navigationRef';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
+
+// Uygulama açıkken (foreground) bildirimlerin ekranda pop-up (banner) olarak görünmesini sağlar
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
 
 // Ekranlar
 import LoginScreen from './src/screens/LoginScreen';
@@ -166,8 +177,37 @@ function SplashScreen({ navigation }: any) {
 
 // ─── Root Navigator ───
 export default function App() {
+  useEffect(() => {
+    // Kullanıcı kapalı/arkaplandaki uygulamadan gelen bir bildirime tıkladığında çalışacak Listener
+    const responseListener = Notifications.addNotificationResponseReceivedListener(response => {
+      const data = response.notification.request.content.data;
+      console.log('Push Bildirimine Tıklandı, Gelen Data:', data);
+      
+      // Eğer backend'den gelen bildirimde 'blood_request_id' varsa, direkt o ilanın detayına yönlendir
+      if (data && data.blood_request_id) {
+        if (navigationRef.isReady()) {
+          navigationRef.navigate('ListingDetail', { id: data.blood_request_id });
+        }
+      }
+    });
+
+    return () => {
+      Notifications.removeNotificationSubscription(responseListener);
+    };
+  }, []);
+
+  const prefix = Linking.createURL('/');
+  const linking = {
+    prefixes: [prefix, 'kanbagi://'],
+    config: {
+      screens: {
+        ListingDetail: 'ilan/:id',
+      },
+    },
+  };
+
   return (
-    <NavigationContainer ref={navigationRef}>
+    <NavigationContainer ref={navigationRef} linking={linking}>
       <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Splash">
         {/* Splash Check */}
         <Stack.Screen name="Splash" component={SplashScreen} />

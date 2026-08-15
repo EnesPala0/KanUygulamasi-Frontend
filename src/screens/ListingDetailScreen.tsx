@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, TouchableOpacity, SafeAreaView, ScrollView, Sta
 import { applyAsVolunteer, cancelVolunteerApplication, getBloodRequestById, getVolunteers, getUserProfile, getMyApplications } from '../api/blood';
 import { getErrorMessage } from '../utils/errors';
 import { Ionicons } from '@expo/vector-icons';
+import * as ExpoLinking from 'expo-linking';
 
 const getUrgencyColor = (urgency: string) => {
   if (urgency === 'Kritik') return '#E63946';
@@ -125,8 +126,11 @@ export default function ListingDetailScreen({ route, navigation }: any) {
 
   const handleShare = async () => {
     try {
+      const shareUrl = ExpoLinking.createURL(`ilan/${listingData.id || listing.id}`);
+      const storeLink = 'https://play.google.com/store/apps/details?id=com.enespala.kanbagi';
+      
       await Share.share({
-        message: `Acil Kan İhtiyacı! ${listingData.patientName} için ${listingData.hospital} (${listingData.location}) hastanesinde ${listingData.bloodType} kan grubuna ihtiyaç var. Lütfen KanBağı uygulamasından başvurarak destek olun. Her bağış bir hayat kurtarır!`,
+        message: `🚨 ACİL KAN İHTİYACI!\n${listingData.patientName} için ${listingData.hospital} (${listingData.location}) hastanesinde ${listingData.bloodType} kan grubuna ihtiyaç var.\n\nUygulamadan detayları görmek ve gönüllü olmak için tıklayın:\n${shareUrl}\n\nUygulamayı indirmek için: ${storeLink}\nHer bağış bir hayat kurtarır!`,
       });
     } catch (error) {
       console.log('Share error:', error);
@@ -226,9 +230,6 @@ export default function ListingDetailScreen({ route, navigation }: any) {
         </TouchableOpacity>
         <Text style={styles.headerTitle}>İlan Detayı</Text>
         <View style={styles.headerRight}>
-          <TouchableOpacity style={styles.shareButton} onPress={handleShare}>
-            <Ionicons name="share-social-outline" size={20} color="#E63946" />
-          </TouchableOpacity>
           <View style={[styles.urgencyBadge, { borderColor: getUrgencyColor(listingData.urgency) }]}>
             <Text style={[styles.urgencyText, { color: getUrgencyColor(listingData.urgency) }]}>{listingData.urgency}</Text>
           </View>
@@ -265,6 +266,12 @@ export default function ListingDetailScreen({ route, navigation }: any) {
             <Text style={styles.patientLabel}>Hasta Profili</Text>
           </View>
           <Ionicons name="chevron-forward" size={24} color="#C4C4C4" />
+        </TouchableOpacity>
+
+        {/* Acil Paylaş Butonu */}
+        <TouchableOpacity style={styles.bigShareButton} onPress={handleShare}>
+          <Ionicons name="logo-whatsapp" size={24} color="#FFF" style={{ marginRight: 8 }} />
+          <Text style={styles.bigShareText}>WhatsApp'ta Acil Paylaş</Text>
         </TouchableOpacity>
 
         {/* Details Container */}
@@ -452,17 +459,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  shareButton: {
-    width: 36,
-    height: 36,
-    marginRight: 8,
-    backgroundColor: '#FFF0F0',
-    borderRadius: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#FFE5E5',
-  },
   urgencyBadge: {
     paddingHorizontal: 10,
     paddingVertical: 4,
@@ -515,6 +511,25 @@ const styles = StyleSheet.create({
   patientLabel: {
     fontSize: 14,
     color: '#666',
+  },
+  bigShareButton: {
+    backgroundColor: '#25D366',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 16,
+    borderRadius: 16,
+    marginBottom: 20,
+    shadowColor: '#25D366',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  bigShareText: {
+    color: '#FFF',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
   detailsContainer: {
     backgroundColor: '#FFF',
