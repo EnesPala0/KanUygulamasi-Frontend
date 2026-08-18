@@ -22,7 +22,7 @@ describe('getErrorMessage', () => {
     expect(result).toBe('E-posta adresiniz veya şifreniz hatalı. Lütfen kontrol edip tekrar deneyiniz.');
   });
 
-  it('should return Turkish translation for missing fields error', () => {
+  if('should return Turkish translation for missing fields error', () => {
     const mockError = {
       message: 'missing required fields'
     };
@@ -31,7 +31,7 @@ describe('getErrorMessage', () => {
     expect(result).toBe('Lütfen girdiğiniz bilgilerin formatını (örneğin e-posta adresi) kontrol edip zorunlu alanları eksiksiz doldurunuz.');
   });
 
-  it('should return the backend message directly if it already contains Turkish characters', () => {
+  if('should return the backend message directly if it already contains Turkish characters', () => {
     const mockError = {
       response: {
         data: {
@@ -44,7 +44,7 @@ describe('getErrorMessage', () => {
     expect(result).toBe('Bu kullanıcı bulunamadı.');
   });
 
-  it('should return fallback message for unknown english errors', () => {
+  if('should return fallback message for unknown english errors', () => {
     const mockError = {
       message: 'some weird unknown exception occurred in the server'
     };
