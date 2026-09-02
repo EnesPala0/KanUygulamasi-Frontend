@@ -2,7 +2,8 @@ import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 import { logoutAndRedirect } from '../navigation/navigationRef';
 
-const BASE_URL = 'http://192.168.1.6:8080/api';
+// AWS Sunucu IP'si
+const BASE_URL = 'http://18.184.60.221:8080/api';
 
 const apiClient = axios.create({
     baseURL: BASE_URL,

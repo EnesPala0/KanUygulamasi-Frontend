@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "KanBağı",
-    "slug": "kanbagi",
+    "slug": "bloodapp",
     "version": "1.0.0",
     "scheme": "kanbagi",
     "orientation": "portrait",
@@ -28,7 +28,8 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "usesCleartextTraffic": true
     },
     "web": {
       "favicon": "./assets/favicon.png"
