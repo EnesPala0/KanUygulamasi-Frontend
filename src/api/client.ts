@@ -3,7 +3,7 @@ import * as SecureStore from 'expo-secure-store';
 import { logoutAndRedirect } from '../navigation/navigationRef';
 
 // AWS Sunucu IP'si
-const BASE_URL = 'http://18.184.60.221:8080/api';
+const BASE_URL = 'https://api.kanbagi.me/api';
 
 const apiClient = axios.create({
     baseURL: BASE_URL,
