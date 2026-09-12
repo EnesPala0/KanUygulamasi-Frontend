@@ -46,6 +46,7 @@ export default function ListingDetailScreen({ route, navigation }: any) {
   const [isMine, setIsMine] = useState<boolean>(listing?.isMine || false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [isLoadingDetails, setIsLoadingDetails] = useState<boolean>(true);
+  const [isDeleted, setIsDeleted] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchFreshListingDetails = async () => {
@@ -109,11 +110,18 @@ export default function ListingDetailScreen({ route, navigation }: any) {
             medicalNote: freshReq.medical_note !== undefined ? freshReq.medical_note : prev.medicalNote,
             status: newStatus,
             isMine: !!checkMine,
-            ownerId: ownerId || prev.ownerId
+            ownerId: ownerId || prev.ownerId,
+            patientName: freshReq.user ? `${freshReq.user.first_name} ${freshReq.user.last_name}` : prev.patientName,
+            hospital: freshReq.hospital_name || prev.hospital,
+            location: freshReq.city ? (freshReq.district ? `${freshReq.district}, ${freshReq.city}` : freshReq.city) : prev.location,
+            bloodType: freshReq.required_blood_type || prev.bloodType
           }));
+        } else {
+          setIsDeleted(true);
         }
       } catch (error) {
         console.log('Detaylar çekilemedi:', error);
+        setIsDeleted(true);
       } finally {
         setIsLoadingDetails(false);
       }
@@ -223,20 +231,42 @@ export default function ListingDetailScreen({ route, navigation }: any) {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FAFAFA" />
       
-      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <Ionicons name="chevron-back" size={26} color="#1A1A2E" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>İlan Detayı</Text>
         <View style={styles.headerRight}>
-          <View style={[styles.urgencyBadge, { borderColor: getUrgencyColor(listingData.urgency) }]}>
-            <Text style={[styles.urgencyText, { color: getUrgencyColor(listingData.urgency) }]}>{listingData.urgency}</Text>
-          </View>
+          {!isDeleted && !isLoadingDetails && (
+            <View style={[styles.urgencyBadge, { borderColor: getUrgencyColor(listingData.urgency) }]}>
+              <Text style={[styles.urgencyText, { color: getUrgencyColor(listingData.urgency) }]}>{listingData.urgency}</Text>
+            </View>
+          )}
         </View>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      {isLoadingDetails ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" color="#E63946" />
+          <Text style={{ marginTop: 15, color: '#666', fontSize: 16 }}>İlan detayları yükleniyor...</Text>
+        </View>
+      ) : isDeleted ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+          <Ionicons name="alert-circle-outline" size={80} color="#9CA3AF" style={{ marginBottom: 20 }} />
+          <Text style={{ fontSize: 22, fontWeight: 'bold', color: '#1F2937', marginBottom: 12 }}>İlan Bulunamadı</Text>
+          <Text style={{ fontSize: 16, color: '#6B7280', textAlign: 'center', lineHeight: 24, paddingHorizontal: 20 }}>
+            Bu kan bağışı ilanı süresi dolduğu için veya ihtiyaç karşılandığı için sistemden kaldırılmış olabilir. Duyarlılığınız için teşekkür ederiz.
+          </Text>
+          <TouchableOpacity 
+            style={[styles.ctaButton, { backgroundColor: '#1A1A2E', marginTop: 40, paddingHorizontal: 40 }]} 
+            onPress={() => navigation.goBack()}
+          >
+            <Text style={{ color: '#FFF', fontWeight: 'bold', fontSize: 16 }}>Geri Dön</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <>
+          <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Kendi İlanım Banner */}
         {isMine && (
           <View style={[styles.infoBox, { backgroundColor: '#F3E5F5', borderColor: '#9C27B0', marginBottom: 15 }]}>
@@ -424,6 +454,8 @@ export default function ListingDetailScreen({ route, navigation }: any) {
           </TouchableOpacity>
         )}
       </View>
+      </>
+      )}
     </SafeAreaView>
   );
 }

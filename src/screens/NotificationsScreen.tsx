@@ -141,9 +141,9 @@ export default function NotificationsScreen({ navigation }: any) {
         navigation.navigate('MyListingDetail', {
           listing: {
             id: reqId.toString(),
-            bloodType: 'Kan Talebi',
-            hospital: 'İlan Detayları Yükleniyor...',
-            location: 'Türkiye',
+            bloodType: '?',
+            hospital: 'Yükleniyor...',
+            location: '...',
             unitsNeeded: 1,
             urgency: 'Acil',
             timeAgo: 'Az önce',
@@ -183,10 +183,10 @@ export default function NotificationsScreen({ navigation }: any) {
       navigation.navigate('ListingDetail', {
         listing: {
           id: reqId.toString(),
-          patientName: 'İhtiyaç Sahibi',
-          bloodType: 'Kan İhtiyacı',
-          hospital: 'Hastane',
-          location: 'Konum',
+          patientName: 'Yükleniyor...',
+          bloodType: '?',
+          hospital: 'Yükleniyor...',
+          location: '...',
           unitsNeeded: 1,
           urgency: 'Acil',
           timeAgo: 'Yeni',
