@@ -26,6 +26,7 @@ export default function SignupScreen({ navigation }: any) {
   const [bloodType, setBloodType] = useState('');
   const [city, setCity] = useState('');
   const [district, setDistrict] = useState('');
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   // Kan grupları dizisi (Modern seçim arayüzü için)
   const bloodTypesList = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', '0+', '0-'];
@@ -61,6 +62,11 @@ export default function SignupScreen({ navigation }: any) {
   };
 
   const handleSignup = async () => {
+  if (!acceptedTerms) {
+    Alert.alert('Eksik İşlem', "Kayıt olabilmek için Kullanım Koşulları ve Gizlilik Politikası'nı onaylamalısınız.");
+    return;
+  }
+
   // Modelindeki gorm:"not null" kurallarına göre tüm alanların doluluğunu kontrol ediyoruz
   if (!firstName || !lastName || !email || !password || !phone || !bloodType || !city || !district) {
     Alert.alert('Hata', 'Lütfen tüm alanları eksiksiz doldurun.');
@@ -243,6 +249,40 @@ export default function SignupScreen({ navigation }: any) {
             </View>
           </View>
 
+          {/* Sözleşme Onay Alanı */}
+          <View style={styles.termsContainer}>
+            <TouchableOpacity 
+              style={styles.checkboxContainer} 
+              onPress={() => setAcceptedTerms(!acceptedTerms)}
+              activeOpacity={0.7}
+            >
+              <Ionicons 
+                name={acceptedTerms ? 'checkbox' : 'square-outline'} 
+                size={22} 
+                color={acceptedTerms ? '#EF4444' : '#9CA3AF'} 
+              />
+            </TouchableOpacity>
+            <View style={styles.termsTextContainer}>
+              <Text style={styles.termsText}>
+                Hesap oluşturarak{' '}
+                <Text 
+                  style={styles.termsLink} 
+                  onPress={() => navigation.navigate('LegalScreen', { type: 'terms' })}
+                >
+                  Kullanım Koşulları
+                </Text>
+                'nı ve{' '}
+                <Text 
+                  style={styles.termsLink} 
+                  onPress={() => navigation.navigate('LegalScreen', { type: 'privacy' })}
+                >
+                  Gizlilik Politikası
+                </Text>
+                'nı okuduğumu ve kabul ettiğimi onaylıyorum.
+              </Text>
+            </View>
+          </View>
+
           <TouchableOpacity style={styles.signupButton} onPress={handleSignup}>
             <Text style={styles.signupButtonText}>Kayıt Ol</Text>
           </TouchableOpacity>
@@ -420,5 +460,28 @@ const styles = StyleSheet.create({
   },
   footerSpacer: {
     height: 50,
+  },
+  termsContainer: {
+    flexDirection: 'row',
+    marginTop: 10,
+    marginBottom: 5,
+    paddingHorizontal: 4,
+    alignItems: 'flex-start',
+  },
+  checkboxContainer: {
+    marginRight: 10,
+    marginTop: 2,
+  },
+  termsTextContainer: {
+    flex: 1,
+  },
+  termsText: {
+    fontSize: 13,
+    color: '#6B7280',
+    lineHeight: 18,
+  },
+  termsLink: {
+    color: '#E63946',
+    fontWeight: '600',
   },
 });

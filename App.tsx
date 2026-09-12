@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { View, TouchableOpacity, StyleSheet, Text, ActivityIndicator } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import * as SecureStore from 'expo-secure-store';
 import * as Notifications from 'expo-notifications';
 import * as Linking from 'expo-linking';
@@ -30,6 +31,7 @@ import NotificationsScreen from './src/screens/NotificationsScreen';
 import PublicProfileScreen from './src/screens/PublicProfileScreen';
 import OTPVerificationScreen from './src/screens/OTPVerificationScreen';
 import ResetPasswordScreen from './src/screens/ResetPasswordScreen';
+import LegalScreen from './src/screens/LegalScreen';
 
 // Navigator'lar
 const Stack = createNativeStackNavigator();
@@ -207,32 +209,35 @@ export default function App() {
   };
 
   return (
-    <NavigationContainer ref={navigationRef} linking={linking}>
-      <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Splash">
-        {/* Splash Check */}
-        <Stack.Screen name="Splash" component={SplashScreen} />
-        {/* Auth */}
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="Signup" component={SignupScreen} />
-        <Stack.Screen name="OTPVerification" component={OTPVerificationScreen} />
-        <Stack.Screen name="ResetPasswordScreen" component={ResetPasswordScreen} />
-        {/* Ana Uygulama */}
-        <Stack.Screen name="Main" component={MainTabs} options={{ gestureEnabled: false }} />
-        {/* Global Detay Ekranları */}
-        <Stack.Screen name="ListingDetail" component={ListingDetailScreen} />
-        <Stack.Screen name="MyListingDetail" component={MyListingDetailScreen} />
-        <Stack.Screen name="PublicProfile" component={PublicProfileScreen} />
-        {/* Yeni İlan Modal */}
-        <Stack.Screen
-          name="CreateListingModal"
-          component={CreateListingScreen}
-          options={{
-            presentation: 'modal',
-            animation: 'slide_from_bottom',
-          }}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <SafeAreaProvider>
+      <NavigationContainer ref={navigationRef} linking={linking}>
+        <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Splash">
+          {/* Splash Check */}
+          <Stack.Screen name="Splash" component={SplashScreen} />
+          {/* Auth */}
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Signup" component={SignupScreen} />
+          <Stack.Screen name="OTPVerification" component={OTPVerificationScreen} />
+          <Stack.Screen name="ResetPasswordScreen" component={ResetPasswordScreen} />
+          <Stack.Screen name="LegalScreen" component={LegalScreen} options={{ presentation: 'modal' }} />
+          {/* Ana Uygulama */}
+          <Stack.Screen name="Main" component={MainTabs} options={{ gestureEnabled: false }} />
+          {/* Global Detay Ekranları */}
+          <Stack.Screen name="ListingDetail" component={ListingDetailScreen} />
+          <Stack.Screen name="MyListingDetail" component={MyListingDetailScreen} />
+          <Stack.Screen name="PublicProfile" component={PublicProfileScreen} />
+          {/* Yeni İlan Modal */}
+          <Stack.Screen
+            name="CreateListingModal"
+            component={CreateListingScreen}
+            options={{
+              presentation: 'modal',
+              animation: 'slide_from_bottom',
+            }}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </SafeAreaProvider>
   );
 }
 
