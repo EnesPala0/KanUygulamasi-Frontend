@@ -23,6 +23,7 @@ export default function LoginScreen({ navigation }: any) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Şifremi unuttum modal states
   const [isForgotModalVisible, setForgotModalVisible] = useState(false);
@@ -35,6 +36,7 @@ export default function LoginScreen({ navigation }: any) {
       return;
     }
 
+    setIsSubmitting(true);
     try {
       const data = await loginUser(email, password);
       console.log("Sunucudan Gelen Veri:", data);
@@ -49,6 +51,8 @@ export default function LoginScreen({ navigation }: any) {
       console.log("Giriş Başarısız:", error?.response?.data || error?.message);
       const errMsg = getErrorMessage(error, 'E-posta adresiniz veya şifreniz hatalı. Lütfen kontrol edip tekrar deneyiniz.');
       Alert.alert('Giriş Başarısız', errMsg);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -149,8 +153,16 @@ export default function LoginScreen({ navigation }: any) {
           </TouchableOpacity>
 
           {/* Login Butonu */}
-          <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-            <Text style={styles.loginButtonText}>Giriş Yap</Text>
+          <TouchableOpacity 
+            style={[styles.loginButton, isSubmitting && { opacity: 0.7 }]} 
+            onPress={handleLogin}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <ActivityIndicator color="#FFF" />
+            ) : (
+              <Text style={styles.loginButtonText}>Giriş Yap</Text>
+            )}
           </TouchableOpacity>
 
           {/* Signup'a Git */}

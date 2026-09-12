@@ -12,7 +12,8 @@ import {
   Platform,
   SafeAreaView,
   ScrollView,
-  Alert
+  Alert,
+  ActivityIndicator
 } from 'react-native';
 
 export default function SignupScreen({ navigation }: any) {
@@ -27,6 +28,7 @@ export default function SignupScreen({ navigation }: any) {
   const [city, setCity] = useState('');
   const [district, setDistrict] = useState('');
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Kan grupları dizisi (Modern seçim arayüzü için)
   const bloodTypesList = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', '0+', '0-'];
@@ -89,6 +91,7 @@ export default function SignupScreen({ navigation }: any) {
     return;
   }
 
+  setIsSubmitting(true);
   try {
     // Tüm verileri sırasıyla Go'ya fırlatıyoruz (Örn: Enes, Pala, A+, Antalya vb.)
     const data = await registerUser(
@@ -112,6 +115,8 @@ export default function SignupScreen({ navigation }: any) {
     console.log("Kayıt Hatası detay:", error?.response?.data || error?.message);
     const backendMsg = getErrorMessage(error, 'Kayıt olunamadı. Lütfen girdiğiniz bilgilerin doğruluğunu kontrol edip tekrar deneyiniz.');
     Alert.alert('Kayıt Başarısız', backendMsg);
+  } finally {
+    setIsSubmitting(false);
   }
 };
   return (
@@ -283,8 +288,16 @@ export default function SignupScreen({ navigation }: any) {
             </View>
           </View>
 
-          <TouchableOpacity style={styles.signupButton} onPress={handleSignup}>
-            <Text style={styles.signupButtonText}>Kayıt Ol</Text>
+          <TouchableOpacity 
+            style={[styles.signupButton, isSubmitting && { opacity: 0.7 }]} 
+            onPress={handleSignup}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <ActivityIndicator color="#FFF" />
+            ) : (
+              <Text style={styles.signupButtonText}>Kayıt Ol</Text>
+            )}
           </TouchableOpacity>
 
           {/* Login'e Git */}

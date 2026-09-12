@@ -13,7 +13,8 @@ import { Ionicons } from '@expo/vector-icons';
 // Uygulama açıkken (foreground) bildirimlerin ekranda pop-up (banner) olarak görünmesini sağlar
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
-    shouldShowAlert: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
     shouldPlaySound: true,
     shouldSetBadge: false,
   }),
@@ -194,7 +195,7 @@ export default function App() {
     });
 
     return () => {
-      Notifications.removeNotificationSubscription(responseListener);
+      responseListener.remove();
     };
   }, []);
 
