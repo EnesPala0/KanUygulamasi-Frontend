@@ -24,6 +24,7 @@ Notifications.setNotificationHandler({
 import LoginScreen from './src/screens/LoginScreen';
 import SignupScreen from './src/screens/SignupScreen';
 import HomeScreen from './src/screens/HomeScreen';
+import OfflineNotice from './src/components/OfflineNotice';
 import ListingDetailScreen from './src/screens/ListingDetailScreen';
 import CreateListingScreen from './src/screens/CreateListingScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
@@ -211,6 +212,7 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
+      <OfflineNotice />
       <NavigationContainer ref={navigationRef} linking={linking}>
         <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Splash">
           {/* Splash Check */}
