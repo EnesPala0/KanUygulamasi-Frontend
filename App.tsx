@@ -30,6 +30,7 @@ import CreateListingScreen from './src/screens/CreateListingScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import MyListingDetailScreen from './src/screens/MyListingDetailScreen';
 import NotificationsScreen from './src/screens/NotificationsScreen';
+import OnboardingScreen from './src/screens/OnboardingScreen';
 import PublicProfileScreen from './src/screens/PublicProfileScreen';
 import OTPVerificationScreen from './src/screens/OTPVerificationScreen';
 import ResetPasswordScreen from './src/screens/ResetPasswordScreen';
@@ -159,7 +160,12 @@ function SplashScreen({ navigation }: any) {
         if (token) {
           navigation.reset({ index: 0, routes: [{ name: 'Main' }] });
         } else {
-          navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
+          const hasSeenOnboarding = await SecureStore.getItemAsync('hasSeenOnboarding');
+          if (hasSeenOnboarding) {
+            navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
+          } else {
+            navigation.reset({ index: 0, routes: [{ name: 'Onboarding' }] });
+          }
         }
       } catch (e) {
         navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
@@ -217,6 +223,8 @@ export default function App() {
         <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Splash">
           {/* Splash Check */}
           <Stack.Screen name="Splash" component={SplashScreen} />
+          {/* Onboarding */}
+          <Stack.Screen name="Onboarding" component={OnboardingScreen} />
           {/* Auth */}
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="Signup" component={SignupScreen} />
