@@ -133,8 +133,8 @@ export default function NotificationsScreen({ navigation }: any) {
     const typeStr = (notification.type || '').toLowerCase();
     const msgStr = (notification.message || '').toLowerCase();
 
-    const isVolunteerApplication = typeStr.includes('volunteer') || titleStr.includes('volunteer') || titleStr.includes('gönüllü') || titleStr.includes('başvur') || msgStr.includes('gönüllü') || msgStr.includes('volunteer');
-    const isStatusUpdate = typeStr.includes('approved') || typeStr.includes('rejected') || typeStr.includes('urgent') || titleStr.includes('onay') || titleStr.includes('red') || titleStr.includes('karşılandı');
+    const isStatusUpdate = typeStr.includes('approved') || typeStr.includes('rejected') || typeStr.includes('urgent') || titleStr.includes('onay') || titleStr.includes('red') || titleStr.includes('karşılandı') || titleStr.includes('sonuçland');
+    const isVolunteerApplication = !isStatusUpdate && (typeStr.includes('volunteer') || titleStr.includes('volunteer') || titleStr.includes('gönüllü') || titleStr.includes('başvur') || msgStr.includes('gönüllü') || msgStr.includes('volunteer'));
 
     if (isVolunteerApplication) {
       if (reqId && reqId !== '0') {
