@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { registerUser } from '../api/auth';
 import { getErrorMessage } from '../utils/errors';
 import { isValidEmail, isValidName } from '../utils/validators';
+import { TURKEY_CITIES } from '../constants/cities';
 import { Ionicons } from '@expo/vector-icons';
 import {
   StyleSheet,
@@ -110,18 +111,30 @@ export default function SignupScreen({ navigation }: any) {
     return;
   }
 
+  // İl ve İlçe Doğrulaması
+  const matchedCity = TURKEY_CITIES.find(c => c.toLowerCase() === city.trim().toLowerCase());
+  if (!matchedCity) {
+    Alert.alert('Geçersiz İl', 'Lütfen 81 ilden geçerli bir il adı giriniz (Örn: İstanbul, Antalya).');
+    return;
+  }
+  
+  if (district.trim().length < 2) {
+    Alert.alert('Geçersiz İlçe', 'Lütfen geçerli bir ilçe adı giriniz.');
+    return;
+  }
+
   setIsSubmitting(true);
   try {
     // Tüm verileri sırasıyla Go'ya fırlatıyoruz (Örn: Enes, Pala, A+, Antalya vb.)
     const data = await registerUser(
-      firstName, 
-      lastName, 
-      email, 
+      firstName.trim(), 
+      lastName.trim(), 
+      email.trim(), 
       password, 
       phone, 
       bloodType, 
-      city, 
-      district
+      matchedCity, // Formatlanmış (Örn: istanbul -> İstanbul) haliyle gönder
+      district.trim()
     );
     
     console.log("Go'dan Gelen Başarı Yanıtı:", data);
@@ -165,6 +178,7 @@ export default function SignupScreen({ navigation }: any) {
                 returnKeyType="next"
                 onSubmitEditing={() => lastNameRef.current?.focus()}
                 blurOnSubmit={false}
+                autoCapitalize="words"
               />
             </View>
             <View style={styles.halfInput}>
@@ -178,6 +192,7 @@ export default function SignupScreen({ navigation }: any) {
                 returnKeyType="next"
                 onSubmitEditing={() => emailRef.current?.focus()}
                 blurOnSubmit={false}
+                autoCapitalize="words"
               />
             </View>
           </View>
