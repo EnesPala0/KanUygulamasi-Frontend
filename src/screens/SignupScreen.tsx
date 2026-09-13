@@ -7,15 +7,15 @@ import {
   StyleSheet,
   Text,
   View,
-  TextInput,
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
   ScrollView,
-  Alert,
-  ActivityIndicator
+  Alert
 } from 'react-native';
+import CustomInput from '../components/CustomInput';
+import CustomButton from '../components/CustomButton';
 
 export default function SignupScreen({ navigation }: any) {
   // Go Backend modelimize (User struct) uygun state'ler
@@ -150,53 +150,43 @@ export default function SignupScreen({ navigation }: any) {
 
           <View style={styles.row}>
             <View style={styles.halfInput}>
-              <Text style={styles.label}>Ad</Text>
-              <View style={styles.inputContainer}>
-                <Ionicons name="person-outline" size={18} color="#6B7280" style={styles.inputIcon} />
-                <TextInput style={styles.inputText} placeholder="Emre" placeholderTextColor="#9CA3AF" value={firstName} onChangeText={setFirstName} />
-              </View>
+              <CustomInput 
+                label="Ad" 
+                icon="person-outline" 
+                placeholder="Emre" 
+                value={firstName} 
+                onChangeText={setFirstName} 
+              />
             </View>
             <View style={styles.halfInput}>
-              <Text style={styles.label}>Soyad</Text>
-              <View style={styles.inputContainer}>
-                <Ionicons name="person-outline" size={18} color="#6B7280" style={styles.inputIcon} />
-                <TextInput style={styles.inputText} placeholder="Arslan" placeholderTextColor="#9CA3AF" value={lastName} onChangeText={setLastName} />
-              </View>
+              <CustomInput 
+                label="Soyad" 
+                icon="person-outline" 
+                placeholder="Arslan" 
+                value={lastName} 
+                onChangeText={setLastName} 
+              />
             </View>
           </View>
 
-          <Text style={styles.label}>E-posta</Text>
-          <View style={styles.inputContainer}>
-            <Ionicons name="mail-outline" size={18} color="#6B7280" style={styles.inputIcon} />
-            <TextInput
-              style={styles.inputText}
-              placeholder="ornek@mail.com"
-              placeholderTextColor="#9CA3AF"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              value={email}
-              onChangeText={setEmail}
-            />
-          </View>
+          <CustomInput
+            label="E-posta"
+            icon="mail-outline"
+            placeholder="ornek@mail.com"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            value={email}
+            onChangeText={setEmail}
+          />
 
-          <Text style={styles.label}>Şifre</Text>
-          <View style={styles.inputContainer}>
-            <Ionicons name="lock-closed-outline" size={18} color="#6B7280" style={styles.inputIcon} />
-            <TextInput
-              style={styles.inputText}
-              placeholder="••••••••"
-              placeholderTextColor="#9CA3AF"
-              secureTextEntry={!showPassword}
-              value={password}
-              onChangeText={setPassword}
-            />
-            <TouchableOpacity
-              style={styles.eyeButton}
-              onPress={() => setShowPassword(!showPassword)}
-            >
-              <Ionicons name={showPassword ? 'eye-outline' : 'eye-off-outline'} size={18} color="#6B7280" />
-            </TouchableOpacity>
-          </View>
+          <CustomInput
+            label="Şifre"
+            icon="lock-closed-outline"
+            placeholder="••••••••"
+            isPassword
+            value={password}
+            onChangeText={setPassword}
+          />
 
           {/* Şifre Güvenlik Kriterleri */}
           <View style={styles.passwordCriteriaContainer}>
@@ -214,19 +204,15 @@ export default function SignupScreen({ navigation }: any) {
             </View>
           </View>
 
-          <Text style={styles.label}>Telefon Numarası</Text>
-          <View style={styles.inputContainer}>
-            <Ionicons name="call-outline" size={18} color="#6B7280" style={styles.inputIcon} />
-            <TextInput
-              style={styles.inputText}
-              placeholder="0555 123 45 67"
-              placeholderTextColor="#9CA3AF"
-              keyboardType="phone-pad"
-              maxLength={14}
-              value={phone}
-              onChangeText={formatPhoneNumber}
-            />
-          </View>
+          <CustomInput
+            label="Telefon Numarası"
+            icon="call-outline"
+            placeholder="0555 123 45 67"
+            keyboardType="phone-pad"
+            maxLength={14}
+            value={phone}
+            onChangeText={formatPhoneNumber}
+          />
 
           {/* Şık Kan Grubu Seçici (Pill UI) */}
           <Text style={styles.label}>Kan Grubu</Text>
@@ -252,18 +238,22 @@ export default function SignupScreen({ navigation }: any) {
 
           <View style={styles.row}>
             <View style={styles.halfInput}>
-              <Text style={styles.label}>İl</Text>
-              <View style={styles.inputContainer}>
-                <Ionicons name="location-outline" size={18} color="#6B7280" style={styles.inputIcon} />
-                <TextInput style={styles.inputText} placeholder="İstanbul" placeholderTextColor="#9CA3AF" value={city} onChangeText={setCity} />
-              </View>
+              <CustomInput 
+                label="İl" 
+                icon="location-outline" 
+                placeholder="İstanbul" 
+                value={city} 
+                onChangeText={setCity} 
+              />
             </View>
             <View style={styles.halfInput}>
-              <Text style={styles.label}>İlçe</Text>
-              <View style={styles.inputContainer}>
-                <Ionicons name="map-outline" size={18} color="#6B7280" style={styles.inputIcon} />
-                <TextInput style={styles.inputText} placeholder="Şişli" placeholderTextColor="#9CA3AF" value={district} onChangeText={setDistrict} />
-              </View>
+              <CustomInput 
+                label="İlçe" 
+                icon="map-outline" 
+                placeholder="Şişli" 
+                value={district} 
+                onChangeText={setDistrict} 
+              />
             </View>
           </View>
 
@@ -301,17 +291,12 @@ export default function SignupScreen({ navigation }: any) {
             </View>
           </View>
 
-          <TouchableOpacity 
-            style={[styles.signupButton, isSubmitting && { opacity: 0.7 }]} 
+          <CustomButton 
+            text="Kayıt Ol"
             onPress={handleSignup}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (
-              <ActivityIndicator color="#FFF" />
-            ) : (
-              <Text style={styles.signupButtonText}>Kayıt Ol</Text>
-            )}
-          </TouchableOpacity>
+            isLoading={isSubmitting}
+            containerStyle={{ marginTop: 20 }}
+          />
 
           {/* Login'e Git */}
           <View style={styles.footer}>
@@ -376,34 +361,6 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     marginLeft: 4,
   },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    marginBottom: 16,
-    paddingHorizontal: 15,
-    height: 52,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    elevation: 1,
-  },
-  inputIcon: {
-    marginRight: 8,
-  },
-  inputText: {
-    flex: 1,
-    fontSize: 15,
-    color: '#1F2937',
-    height: '100%',
-  },
-  eyeButton: {
-    paddingLeft: 10,
-    height: '100%',
-    justifyContent: 'center',
-  },
   bloodTypeContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -451,24 +408,6 @@ const styles = StyleSheet.create({
   },
   criteriaTextValid: {
     color: '#10B981',
-  },
-  signupButton: {
-    backgroundColor: '#EF4444',
-    borderRadius: 14,
-    height: 55,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 20,
-    shadowColor: '#EF4444',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.35,
-    shadowRadius: 10,
-    elevation: 8,
-  },
-  signupButtonText: {
-    color: '#FFF',
-    fontSize: 18,
-    fontWeight: 'bold',
   },
   footer: {
     flexDirection: 'row',

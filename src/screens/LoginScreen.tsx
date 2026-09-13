@@ -8,17 +8,18 @@ import {
   StyleSheet, 
   Text, 
   View, 
-  TextInput, 
   TouchableOpacity, 
   KeyboardAvoidingView, 
   Platform,
   SafeAreaView,
+  ScrollView,
   Alert,
   Modal,
-  ActivityIndicator,
   Image,
-  ScrollView
+  ActivityIndicator
 } from 'react-native';
+import CustomInput from '../components/CustomInput';
+import CustomButton from '../components/CustomButton';
 
 export default function LoginScreen({ navigation }: any) {
   const [email, setEmail] = useState('');
@@ -114,38 +115,24 @@ export default function LoginScreen({ navigation }: any) {
 
           {/* Form Alanı */}
           <View style={styles.formContainer}>
-            <Text style={styles.label}>E-posta</Text>
-            <View style={styles.inputContainer}>
-              <Ionicons name="mail-outline" size={20} color="#6B7280" style={styles.inputIcon} />
-              <TextInput 
-                style={styles.inputText}
-                placeholder="ornek@email.com"
-                placeholderTextColor="#9CA3AF"
-                keyboardType="email-address"
-                autoCapitalize="none"
-                value={email}
-                onChangeText={setEmail}
-              />
-            </View>
+            <CustomInput
+              label="E-posta"
+              icon="mail-outline"
+              placeholder="ornek@email.com"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              value={email}
+              onChangeText={setEmail}
+            />
 
-            <Text style={styles.label}>Şifre</Text>
-            <View style={styles.inputContainer}>
-              <Ionicons name="lock-closed-outline" size={20} color="#6B7280" style={styles.inputIcon} />
-              <TextInput 
-                style={styles.inputText}
-                placeholder="••••••••"
-                placeholderTextColor="#9CA3AF"
-                secureTextEntry={!showPassword}
-                value={password}
-                onChangeText={setPassword}
-              />
-              <TouchableOpacity 
-                style={styles.eyeButton} 
-                onPress={() => setShowPassword(!showPassword)}
-              >
-                <Ionicons name={showPassword ? 'eye-outline' : 'eye-off-outline'} size={20} color="#6B7280" />
-              </TouchableOpacity>
-            </View>
+            <CustomInput
+              label="Şifre"
+              icon="lock-closed-outline"
+              placeholder="••••••••"
+              isPassword
+              value={password}
+              onChangeText={setPassword}
+            />
 
           {/* Şifremi Unuttum Linki */}
           <TouchableOpacity 
@@ -159,17 +146,12 @@ export default function LoginScreen({ navigation }: any) {
           </TouchableOpacity>
 
           {/* Login Butonu */}
-          <TouchableOpacity 
-            style={[styles.loginButton, isSubmitting && { opacity: 0.7 }]} 
+          <CustomButton 
+            text="Giriş Yap"
             onPress={handleLogin}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (
-              <ActivityIndicator color="#FFF" />
-            ) : (
-              <Text style={styles.loginButtonText}>Giriş Yap</Text>
-            )}
-          </TouchableOpacity>
+            isLoading={isSubmitting}
+            containerStyle={{ marginTop: 10 }}
+          />
 
           {/* Signup'a Git */}
           <View style={styles.footer}>
@@ -201,14 +183,14 @@ export default function LoginScreen({ navigation }: any) {
               Hesabınıza bağlı e-posta adresini girin. Size şifre sıfırlama talimatlarını gönderelim.
             </Text>
             
-            <TextInput
-              style={styles.modalInput}
+            <CustomInput
+              icon="mail-outline"
               placeholder="E-posta adresiniz"
-              placeholderTextColor="#A0A0A0"
               keyboardType="email-address"
               autoCapitalize="none"
               value={forgotEmail}
               onChangeText={setForgotEmail}
+              containerStyle={{ marginBottom: 15 }}
             />
 
             <View style={styles.modalButtons}>
@@ -294,63 +276,10 @@ const styles = StyleSheet.create({
     paddingTop: 40,
     marginTop: -30,
   },
-  label: {
-    color: '#374151',
-    fontSize: 14,
-    fontWeight: '600',
-    marginBottom: 8,
-    marginLeft: 4,
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    marginBottom: 20,
-    paddingHorizontal: 15,
-    height: 55,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    elevation: 1,
-  },
-  inputIcon: {
-    marginRight: 10,
-  },
-  inputText: {
-    flex: 1,
-    fontSize: 16,
-    color: '#1F2937',
-    height: '100%',
-  },
-  eyeButton: {
-    paddingLeft: 10,
-    height: '100%',
-    justifyContent: 'center',
-  },
-  loginButton: {
-    backgroundColor: '#EF4444',
-    borderRadius: 14,
-    height: 55,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 10,
-    shadowColor: '#EF4444',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.35,
-    shadowRadius: 10,
-    elevation: 8,
-  },
-  loginButtonText: {
-    color: '#FFF',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 30,
+    marginTop: 25,
   },
   footerText: {
     color: '#666',
@@ -414,6 +343,7 @@ const styles = StyleSheet.create({
   modalButtons: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginTop: 10,
   },
   modalCancelButton: {
     flex: 1,
