@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
+import * as SecureStore from 'expo-secure-store';
 import ListingCard from '../components/ListingCard';
 
 const getUrgencyColor = (urgency: string) => {
@@ -37,6 +38,7 @@ export default function HomeScreen({ navigation }: any) {
   const [unreadCount, setUnreadCount] = useState(0);
   const [isCityModalVisible, setCityModalVisible] = useState(false);
   const [citySearchQuery, setCitySearchQuery] = useState('');
+  const [showPermissionModal, setShowPermissionModal] = useState(false);
 
   const urgencyFilters = ['Tümü', 'Normal', 'Acil', 'Kritik'];
   const bloodTypeFilters = ['Tümü', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', '0+', '0-'];
@@ -46,65 +48,91 @@ export default function HomeScreen({ navigation }: any) {
   );
 
   useEffect(() => {
-    const getLocationAndToken = async () => {
-      try {
-        let pushToken = "";
-        let lat = 0;
-        let lon = 0;
-
-        // 1. BİLDİRİM İZNİ VE TOKEN ALMA
-        if (Device.isDevice) {
-          const { status: existingStatus } = await Notifications.getPermissionsAsync();
-          let finalStatus = existingStatus;
-          
-          if (existingStatus !== 'granted') {
-            const { status } = await Notifications.requestPermissionsAsync();
-            finalStatus = status;
-          }
-          
-          if (finalStatus === 'granted') {
-            const Constants = require('expo-constants');
-            const projectId = Constants.default.expoConfig?.extra?.eas?.projectId || Constants.default.easConfig?.projectId;
-
-            const tokenData = await Notifications.getExpoPushTokenAsync({
-              projectId: projectId,
-            });
-            pushToken = tokenData.data;
-          }
-        }
-
-        // 2. KONUM İZNİ VE KOORDİNATLARI ALMA
-        const { status: locationStatus } = await Location.requestForegroundPermissionsAsync();
-        if (locationStatus === 'granted') {
-          const location = await Location.getCurrentPositionAsync({});
-          lat = location.coords.latitude;
-          lon = location.coords.longitude;
-        }
-
-        // 3. EĞER VERİLER ALINDIysa KONSOLA YAZ VE GO'YA GÖNDER
-        if (pushToken !== "" || (lat !== 0 && lon !== 0)) {
-          console.log("🔥 ALINAN VERİLER -> Token:", pushToken, "| Lat:", lat, "| Lon:", lon);
-          
-          try {
-            // Verileri Go'ya yolluyoruz
-            await syncLocationAndToken({
-              latitude: lat,
-              longitude: lon,
-              expo_push_token: pushToken
-            });
-            console.log("✅ İstihbarat Go'ya başarıyla ulaştı!");
-          } catch (err) {
-            console.log("❌ Go'ya gönderirken hata çıktı:", err);
-          }
-        }
-
-      } catch (error) {
-        console.error("İzinler alınırken hata:", error);
-      }
-    };
-
-    getLocationAndToken();
+    checkPermissions();
   }, []);
+
+  const checkPermissions = async () => {
+    try {
+      const hasPrompted = await SecureStore.getItemAsync('hasPromptedPermissions');
+      
+      // Daha önce sorulmadıysa, modalı göster
+      if (hasPrompted !== 'true') {
+        setShowPermissionModal(true);
+      } else {
+        // Zaten sorulduysa arka planda izinleri kontrol et ve token al (sessizce)
+        getLocationAndToken();
+      }
+    } catch (error) {
+      console.error('İzin kontrol hatası:', error);
+    }
+  };
+
+  const handleGrantPermissions = async () => {
+    setShowPermissionModal(false);
+    await SecureStore.setItemAsync('hasPromptedPermissions', 'true');
+    getLocationAndToken();
+  };
+
+  const handleDeclinePermissions = async () => {
+    setShowPermissionModal(false);
+    await SecureStore.setItemAsync('hasPromptedPermissions', 'true');
+  };
+
+  const getLocationAndToken = async () => {
+    try {
+      let pushToken = "";
+      let lat = 0;
+      let lon = 0;
+
+      // 1. BİLDİRİM İZNİ VE TOKEN ALMA
+      if (Device.isDevice) {
+        const { status: existingStatus } = await Notifications.getPermissionsAsync();
+        let finalStatus = existingStatus;
+        
+        if (existingStatus !== 'granted') {
+          const { status } = await Notifications.requestPermissionsAsync();
+          finalStatus = status;
+        }
+        
+        if (finalStatus === 'granted') {
+          const Constants = require('expo-constants');
+          const projectId = Constants.default.expoConfig?.extra?.eas?.projectId || Constants.default.easConfig?.projectId;
+
+          const tokenData = await Notifications.getExpoPushTokenAsync({
+            projectId: projectId,
+          });
+          pushToken = tokenData.data;
+        }
+      }
+
+      // 2. KONUM İZNİ VE KOORDİNATLARI ALMA
+      const { status: locationStatus } = await Location.requestForegroundPermissionsAsync();
+      if (locationStatus === 'granted') {
+        const location = await Location.getCurrentPositionAsync({});
+        lat = location.coords.latitude;
+        lon = location.coords.longitude;
+      }
+
+      // 3. EĞER VERİLER ALINDIysa KONSOLA YAZ VE GO'YA GÖNDER
+      if (pushToken !== "" || (lat !== 0 && lon !== 0)) {
+        console.log("🔥 ALINAN VERİLER -> Token:", pushToken, "| Lat:", lat, "| Lon:", lon);
+        
+        try {
+          await syncLocationAndToken({
+            latitude: lat,
+            longitude: lon,
+            expo_push_token: pushToken
+          });
+          console.log("✅ İstihbarat Go'ya başarıyla ulaştı!");
+        } catch (err) {
+          console.log("❌ Go'ya gönderirken hata çıktı:", err);
+        }
+      }
+
+    } catch (error) {
+      console.error("İzinler alınırken hata:", error);
+    }
+  };
 
   const fetchUnreadNotifications = async () => {
     try {
@@ -449,6 +477,54 @@ export default function HomeScreen({ navigation }: any) {
           </View>
         </KeyboardAvoidingView>
       </Modal>
+
+      {/* İzinler Soft Prompt Modalı */}
+      <Modal
+        visible={showPermissionModal}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={handleDeclinePermissions}
+      >
+        <View style={styles.permissionModalOverlay}>
+          <View style={styles.permissionModalContent}>
+            <View style={styles.permissionIconCircle}>
+              <Ionicons name="location" size={40} color="#E63946" />
+            </View>
+            <Text style={styles.permissionModalTitle}>Sana Nasıl Ulaşalım?</Text>
+            
+            <View style={styles.permissionFeatureRow}>
+              <View style={styles.permissionFeatureIcon}>
+                <Ionicons name="map-outline" size={20} color="#E63946" />
+              </View>
+              <Text style={styles.permissionFeatureText}>
+                Sana en yakın hastanedeki acil kan ihtiyaçlarını bulabilmemiz için <Text style={{fontWeight: 'bold'}}>konumuna</Text> ihtiyacımız var.
+              </Text>
+            </View>
+
+            <View style={styles.permissionFeatureRow}>
+              <View style={styles.permissionFeatureIcon}>
+                <Ionicons name="notifications-outline" size={20} color="#E63946" />
+              </View>
+              <Text style={styles.permissionFeatureText}>
+                Bölgende biri kan aradığında, o kişinin hayatını kurtarabilmen için sana <Text style={{fontWeight: 'bold'}}>bildirim</Text> göndereceğiz.
+              </Text>
+            </View>
+
+            <Text style={styles.permissionPrivacyText}>
+              Verilerin KVKK kapsamında şifrelenerek korunur. Sadece uygulama açıkken (veya arka planda gerekli durumlarda) kullanılır.
+            </Text>
+
+            <TouchableOpacity style={styles.permissionAllowButton} onPress={handleGrantPermissions}>
+              <Text style={styles.permissionAllowButtonText}>İzin Ver (Önerilen)</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.permissionDeclineButton} onPress={handleDeclinePermissions}>
+              <Text style={styles.permissionDeclineButtonText}>Daha Sonra</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
     </SafeAreaView>
   );
 }
@@ -669,8 +745,99 @@ const styles = StyleSheet.create({
   },
   cityCheck: {
     color: '#E63946',
-    fontWeight: 'bold',
     fontSize: 16,
+    fontWeight: 'bold',
+  },
+  permissionModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    justifyContent: 'flex-end',
+  },
+  permissionModalContent: {
+    backgroundColor: '#FFF',
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    padding: 30,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -5 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 20,
+  },
+  permissionIconCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#FDE8E9',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+    marginTop: -10,
+  },
+  permissionModalTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#1A1A2E',
+    marginBottom: 25,
+    textAlign: 'center',
+  },
+  permissionFeatureRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+    paddingRight: 10,
+  },
+  permissionFeatureIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#F3F4F6',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 15,
+  },
+  permissionFeatureText: {
+    flex: 1,
+    fontSize: 14,
+    color: '#4B5563',
+    lineHeight: 20,
+  },
+  permissionPrivacyText: {
+    fontSize: 12,
+    color: '#9CA3AF',
+    textAlign: 'center',
+    marginBottom: 30,
+    lineHeight: 18,
+    paddingHorizontal: 10,
+  },
+  permissionAllowButton: {
+    backgroundColor: '#E63946',
+    width: '100%',
+    paddingVertical: 16,
+    borderRadius: 14,
+    alignItems: 'center',
+    marginBottom: 12,
+    shadowColor: '#E63946',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  permissionAllowButtonText: {
+    color: '#FFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  permissionDeclineButton: {
+    paddingVertical: 12,
+    width: '100%',
+    alignItems: 'center',
+  },
+  permissionDeclineButtonText: {
+    color: '#6B7280',
+    fontSize: 15,
+    fontWeight: '600',
   },
   
   /* 2-A: Şık Boş Durum (Empty State) Stilleri */
