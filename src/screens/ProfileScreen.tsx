@@ -89,6 +89,10 @@ export default function ProfileScreen({ navigation }: any) {
 
   useFocusEffect(
     useCallback(() => {
+      StatusBar.setBarStyle('light-content');
+      if (Platform.OS === 'android') {
+        StatusBar.setBackgroundColor('#E63946');
+      }
       fetchAllData();
     }, [])
   );

@@ -147,6 +147,10 @@ export default function HomeScreen({ navigation }: any) {
 
   useFocusEffect(
     useCallback(() => {
+      StatusBar.setBarStyle('dark-content');
+      if (Platform.OS === 'android') {
+        StatusBar.setBackgroundColor('#FAFAFA');
+      }
       fetchListings();
       fetchUnreadNotifications();
     }, [])
