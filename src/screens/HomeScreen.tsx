@@ -200,7 +200,11 @@ export default function HomeScreen({ navigation }: any) {
       setListings(formattedListings);
     } catch (error: any) {
       console.log("İlanlar çekilirken hata:", error?.message || error);
-      Alert.alert('Hata', 'İlanlar sunucudan alınamadı.');
+      if (error?.message === 'Network Error' || !error?.response) {
+        Alert.alert('Bağlantı Sorunu', 'Şu anda sunucuya ulaşılamıyor. Lütfen internet bağlantınızı kontrol edip sayfayı aşağı çekerek tekrar yenileyin.');
+      } else {
+        Alert.alert('Küçük Bir Aksilik', 'İlanları güncellerken bir sorun oluştu. Lütfen birazdan tekrar deneyin.');
+      }
     } finally {
       setLoading(false);
     }
