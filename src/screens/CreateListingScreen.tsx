@@ -54,6 +54,11 @@ export default function CreateListingScreen({ navigation }: any) {
       return;
     }
 
+    if (district.trim().length < 2) {
+      Alert.alert('Geçersiz İlçe', 'Lütfen geçerli bir ilçe adı giriniz (Örn: Kadıköy).');
+      return;
+    }
+
     if (!isValidUnits(unitsNeeded)) {
       Alert.alert('Geçersiz Ünite', 'Lütfen 1 ile 50 arasında geçerli bir ünite sayısı girin.');
       return;
