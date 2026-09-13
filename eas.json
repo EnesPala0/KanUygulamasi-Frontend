@@ -12,9 +12,18 @@
       "distribution": "internal",
       "android": {
         "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://api.kanbagi.me/api",
+        "EXPO_PUBLIC_ENV": "preview"
       }
     },
-    "production": {}
+    "production": {
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://api.kanbagi.me/api",
+        "EXPO_PUBLIC_ENV": "production"
+      }
+    }
   },
   "submit": {
     "production": {}
