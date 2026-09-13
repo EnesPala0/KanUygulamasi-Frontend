@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { loginUser, forgotPassword } from '../api/auth';
 import { getErrorMessage } from '../utils/errors';
 import { isValidEmail } from '../utils/validators';
@@ -16,7 +16,8 @@ import {
   Alert,
   Modal,
   Image,
-  ActivityIndicator
+  ActivityIndicator,
+  TextInput
 } from 'react-native';
 import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
@@ -25,6 +26,8 @@ export default function LoginScreen({ navigation }: any) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const passwordRef = useRef<TextInput>(null);
 
   // Şifremi unuttum modal states
   const [isForgotModalVisible, setForgotModalVisible] = useState(false);
@@ -122,15 +125,21 @@ export default function LoginScreen({ navigation }: any) {
               autoCapitalize="none"
               value={email}
               onChangeText={setEmail}
+              returnKeyType="next"
+              onSubmitEditing={() => passwordRef.current?.focus()}
+              blurOnSubmit={false}
             />
 
             <CustomInput
+              ref={passwordRef}
               label="Şifre"
               icon="lock-closed-outline"
               placeholder="••••••••"
               isPassword
               value={password}
               onChangeText={setPassword}
+              returnKeyType="done"
+              onSubmitEditing={handleLogin}
             />
 
           {/* Şifremi Unuttum Linki */}

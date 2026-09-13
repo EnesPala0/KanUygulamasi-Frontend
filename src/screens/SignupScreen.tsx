@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { registerUser } from '../api/auth';
 import { getErrorMessage } from '../utils/errors';
 import { isValidEmail, isValidName } from '../utils/validators';
@@ -12,7 +12,8 @@ import {
   Platform,
   SafeAreaView,
   ScrollView,
-  Alert
+  Alert,
+  TextInput
 } from 'react-native';
 import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
@@ -29,6 +30,12 @@ export default function SignupScreen({ navigation }: any) {
   const [district, setDistrict] = useState('');
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const lastNameRef = useRef<TextInput>(null);
+  const emailRef = useRef<TextInput>(null);
+  const passwordRef = useRef<TextInput>(null);
+  const phoneRef = useRef<TextInput>(null);
+  const districtRef = useRef<TextInput>(null);
 
   // Kan grupları dizisi (Modern seçim arayüzü için)
   const bloodTypesList = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', '0+', '0-'];
@@ -154,21 +161,29 @@ export default function SignupScreen({ navigation }: any) {
                 icon="person-outline" 
                 placeholder="Emre" 
                 value={firstName} 
-                onChangeText={setFirstName} 
+                onChangeText={setFirstName}
+                returnKeyType="next"
+                onSubmitEditing={() => lastNameRef.current?.focus()}
+                blurOnSubmit={false}
               />
             </View>
             <View style={styles.halfInput}>
               <CustomInput 
+                ref={lastNameRef}
                 label="Soyad" 
                 icon="person-outline" 
                 placeholder="Arslan" 
                 value={lastName} 
-                onChangeText={setLastName} 
+                onChangeText={setLastName}
+                returnKeyType="next"
+                onSubmitEditing={() => emailRef.current?.focus()}
+                blurOnSubmit={false}
               />
             </View>
           </View>
 
           <CustomInput
+            ref={emailRef}
             label="E-posta"
             icon="mail-outline"
             placeholder="ornek@mail.com"
@@ -176,15 +191,22 @@ export default function SignupScreen({ navigation }: any) {
             autoCapitalize="none"
             value={email}
             onChangeText={setEmail}
+            returnKeyType="next"
+            onSubmitEditing={() => passwordRef.current?.focus()}
+            blurOnSubmit={false}
           />
 
           <CustomInput
+            ref={passwordRef}
             label="Şifre"
             icon="lock-closed-outline"
             placeholder="••••••••"
             isPassword
             value={password}
             onChangeText={setPassword}
+            returnKeyType="next"
+            onSubmitEditing={() => phoneRef.current?.focus()}
+            blurOnSubmit={false}
           />
 
           {/* Şifre Güvenlik Kriterleri */}
@@ -204,6 +226,7 @@ export default function SignupScreen({ navigation }: any) {
           </View>
 
           <CustomInput
+            ref={phoneRef}
             label="Telefon Numarası"
             icon="call-outline"
             placeholder="0555 123 45 67"
@@ -211,6 +234,7 @@ export default function SignupScreen({ navigation }: any) {
             maxLength={14}
             value={phone}
             onChangeText={formatPhoneNumber}
+            returnKeyType="done"
           />
 
           {/* Şık Kan Grubu Seçici (Pill UI) */}
@@ -242,16 +266,21 @@ export default function SignupScreen({ navigation }: any) {
                 icon="location-outline" 
                 placeholder="İstanbul" 
                 value={city} 
-                onChangeText={setCity} 
+                onChangeText={setCity}
+                returnKeyType="next"
+                onSubmitEditing={() => districtRef.current?.focus()}
+                blurOnSubmit={false}
               />
             </View>
             <View style={styles.halfInput}>
               <CustomInput 
+                ref={districtRef}
                 label="İlçe" 
                 icon="map-outline" 
                 placeholder="Şişli" 
                 value={district} 
-                onChangeText={setDistrict} 
+                onChangeText={setDistrict}
+                returnKeyType="done"
               />
             </View>
           </View>
