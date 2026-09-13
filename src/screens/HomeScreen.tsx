@@ -491,6 +491,12 @@ export default function HomeScreen({ navigation }: any) {
                 );
               }}
             />
+            <TouchableOpacity 
+              style={styles.applyButton} 
+              onPress={() => setCityModalVisible(false)}
+            >
+              <Text style={styles.applyButtonText}>Filtreyi Uygula</Text>
+            </TouchableOpacity>
           </View>
         </KeyboardAvoidingView>
       </Modal>
@@ -723,6 +729,18 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: '#1A1A2E',
+  },
+  applyButton: {
+    backgroundColor: '#E63946',
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginTop: 12,
+  },
+  applyButtonText: {
+    color: '#FFF',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   modalClose: {
     fontSize: 22,
