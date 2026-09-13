@@ -145,7 +145,7 @@ export default function SignupScreen({ navigation }: any) {
           </View>
 
           {/* Uzun form olduğu için ScrollView kullanıyoruz */}
-          <ScrollView style={styles.formContainer} showsVerticalScrollIndicator={false}>
+          <ScrollView style={styles.formContainer} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
 
           <View style={styles.row}>
             <View style={styles.halfInput}>

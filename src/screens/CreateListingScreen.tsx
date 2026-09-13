@@ -107,7 +107,7 @@ export default function CreateListingScreen({ navigation }: any) {
         style={{ flex: 1 }} 
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <ScrollView contentContainerStyle={styles.scrollContent}>
+        <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
           <View style={styles.formGroup}>
             <Text style={styles.label}>Kan Grubu*</Text>
             <View style={styles.pillContainer}>

@@ -101,7 +101,7 @@ export default function LoginScreen({ navigation }: any) {
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={styles.container}
         >
-          <ScrollView contentContainerStyle={{ flexGrow: 1 }} bounces={false} showsVerticalScrollIndicator={false}>
+          <ScrollView contentContainerStyle={{ flexGrow: 1 }} bounces={false} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
             {/* Üst Kırmızı Alan (Header) */}
             <View style={styles.headerContainer}>
             <View style={styles.logoCircle}>

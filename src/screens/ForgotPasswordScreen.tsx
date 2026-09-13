@@ -67,7 +67,8 @@ export default function ForgotPasswordScreen({ navigation }: any) {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <ScrollView 
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={{ flexGrow: 1 }} 
+          bounces={false} 
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
