@@ -24,7 +24,6 @@ import CustomButton from '../components/CustomButton';
 export default function LoginScreen({ navigation }: any) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Şifremi unuttum modal states
@@ -194,25 +193,21 @@ export default function LoginScreen({ navigation }: any) {
             />
 
             <View style={styles.modalButtons}>
-              <TouchableOpacity 
-                style={styles.modalCancelButton}
+              <CustomButton 
+                text="Vazgeç"
+                variant="secondary"
                 onPress={() => setForgotModalVisible(false)}
                 disabled={forgotLoading}
-              >
-                <Text style={styles.modalCancelText}>Vazgeç</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity 
-                style={styles.modalSubmitButton}
+                containerStyle={{ flex: 1, marginRight: 10, height: 45 }}
+                textStyle={{ fontSize: 16 }}
+              />
+              <CustomButton 
+                text="Sıfırla"
                 onPress={handleForgotPassword}
-                disabled={forgotLoading}
-              >
-                {forgotLoading ? (
-                  <ActivityIndicator color="#FFF" size="small" />
-                ) : (
-                  <Text style={styles.modalSubmitText}>Sıfırla</Text>
-                )}
-              </TouchableOpacity>
+                isLoading={forgotLoading}
+                containerStyle={{ flex: 1, height: 45 }}
+                textStyle={{ fontSize: 16 }}
+              />
             </View>
           </View>
         </View>
@@ -344,31 +339,5 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 10,
-  },
-  modalCancelButton: {
-    flex: 1,
-    backgroundColor: '#F0F2F5',
-    paddingVertical: 14,
-    borderRadius: 12,
-    alignItems: 'center',
-    marginRight: 8,
-  },
-  modalCancelText: {
-    color: '#666',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  modalSubmitButton: {
-    flex: 1.2,
-    backgroundColor: '#E63946',
-    paddingVertical: 14,
-    borderRadius: 12,
-    alignItems: 'center',
-    marginLeft: 8,
-  },
-  modalSubmitText: {
-    color: '#FFF',
-    fontSize: 16,
-    fontWeight: 'bold',
   },
 });
