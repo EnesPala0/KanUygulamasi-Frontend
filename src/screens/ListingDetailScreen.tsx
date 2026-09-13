@@ -185,13 +185,17 @@ export default function ListingDetailScreen({ route, navigation }: any) {
               } catch (error: any) {
                 console.log("Başvuru Hatası detay:", error?.response?.data || error?.message);
                 const rawMsg = `${error?.response?.data?.error || ''} ${error?.response?.data?.details || ''} ${error?.response?.data?.message || ''} ${error?.message || ''}`.toString().toLowerCase();
-                if (rawMsg.includes('own') || rawMsg.includes('kendi') || isMine) {
+                
+                if (rawMsg.includes('not found') || rawMsg.includes('deleted') || error?.response?.status === 404) {
+                  Alert.alert('İlan Bulunamadı', 'Bu ilan sistemden silinmiş, süresi dolmuş veya sahibi tarafından yayından kaldırılmış olabilir.');
+                  setIsDeleted(true);
+                } else if (rawMsg.includes('own') || rawMsg.includes('kendi') || isMine) {
                   Alert.alert('Uyarı', 'Kendi açtığınız kan ilanına gönüllü başvurusu yapamazsınız. İlanı yönetmek için aşağıdan İlanı Yönet ekranına geçebilirsiniz.');
                 } else if (rawMsg.includes('already') || rawMsg.includes('zaten')) {
                   setIsVolunteered(true);
                   Alert.alert('Bilgi', 'Bu ilana zaten başvuru yapmışsınız. Başvurunuz hastaya iletilmiş durumdadır.');
                 } else {
-                  const translated = getErrorMessage(error, 'Başvuru yapılamadı. Kendi ilanınıza başvurmaya çalışıyor veya zaten başvurmuş olabilirsiniz.');
+                  const translated = getErrorMessage(error, 'Başvuru yapılamadı. İlan silinmiş, süresi dolmuş veya sistemde anlık bir hata oluşmuş olabilir.');
                   Alert.alert('Uyarı', translated);
                 }
               } finally {
