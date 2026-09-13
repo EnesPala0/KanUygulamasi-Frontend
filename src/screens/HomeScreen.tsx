@@ -7,7 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
-
+import ListingCard from '../components/ListingCard';
 
 const getUrgencyColor = (urgency: string) => {
   if (urgency === 'Kritik') return '#E63946';
@@ -226,80 +226,16 @@ export default function HomeScreen({ navigation }: any) {
     return matchUrgency && matchBlood && matchCity;
   });
 
-  const renderItem = ({ item }: any) => (
-    <TouchableOpacity 
-      style={styles.card} 
-      onPress={() => navigation.navigate('ListingDetail', { listing: item })}
-    >
-      <View style={styles.cardHeader}>
-        <View style={styles.patientInfo}>
-          <View style={[styles.bloodBadge, { backgroundColor: getBloodTypeBgColor(item.bloodType) }]}>
-            <Text style={styles.bloodBadgeText}>{item.bloodType}</Text>
-          </View>
-          <View style={{ flex: 1, paddingRight: 8 }}>
-            <Text style={styles.patientName} numberOfLines={1}>{item.patientName}</Text>
-            <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 2 }}>
-              <Ionicons name="location-outline" size={13} color="#666" style={{ marginRight: 3, flexShrink: 0 }} />
-              <Text style={styles.hospital} numberOfLines={1} ellipsizeMode="tail">{item.hospital}, {item.location}</Text>
-            </View>
-          </View>
-        </View>
-        <View style={[styles.urgencyBadge, { borderColor: getUrgencyColor(item.urgency) }]}>
-          <View style={[styles.urgencyDot, { backgroundColor: getUrgencyColor(item.urgency) }]} />
-          <Text style={[styles.urgencyText, { color: getUrgencyColor(item.urgency) }]}>{item.urgency}</Text>
-        </View>
-      </View>
-      <View style={styles.cardFooter}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', flexShrink: 0 }}>
-          <Ionicons name="water-outline" size={15} color="#E63946" style={{ marginRight: 4 }} />
-          <Text style={styles.footerText}>{item.unitsNeeded} Ünite</Text>
-        </View>
-        <View style={[
-          styles.statusBadgeHome,
-          item.status === 'Tamamlandı' ? { backgroundColor: '#E8F8F5', borderColor: '#2EC4B6' } :
-          item.status === 'Onaylandı' ? { backgroundColor: '#EBF5FB', borderColor: '#3498DB' } :
-          item.status === 'İptal Edildi' ? { backgroundColor: '#FDEDEC', borderColor: '#E63946' } :
-          { backgroundColor: '#F4F6F7', borderColor: '#D5D8DC' },
-          { flexShrink: 1, marginLeft: 8 }
-        ]}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', flexShrink: 1 }}>
-            <Ionicons 
-              name={
-                item.status === 'Tamamlandı' ? 'checkmark-circle-outline' :
-                item.status === 'Onaylandı' ? 'people-outline' :
-                item.status === 'İptal Edildi' ? 'close-circle-outline' :
-                'pulse-outline'
-              } 
-              size={13} 
-              color={
-                item.status === 'Tamamlandı' ? '#16A085' :
-                item.status === 'Onaylandı' ? '#2980B9' :
-                item.status === 'İptal Edildi' ? '#C0392B' :
-                '#5D6D7E'
-              } 
-              style={{ marginRight: 4 }} 
-            />
-            <Text 
-              numberOfLines={1} 
-              ellipsizeMode="tail"
-              style={[
-              styles.statusTextHome,
-              item.status === 'Tamamlandı' ? { color: '#16A085', fontWeight: 'bold' } :
-              item.status === 'Onaylandı' ? { color: '#2980B9', fontWeight: 'bold' } :
-              item.status === 'İptal Edildi' ? { color: '#C0392B', fontWeight: 'bold' } :
-              { color: '#5D6D7E', fontWeight: '600' },
-              { flexShrink: 1 }
-            ]}>
-              {item.status === 'Tamamlandı' ? 'İhtiyaç Karşılandı' :
-               item.status === 'Onaylandı' ? 'Gönüllü Bulundu' :
-               item.status === 'İptal Edildi' ? 'İptal Edildi' :
-               'Yayında (Aktif)'}
-            </Text>
-          </View>
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
+  const renderItem = useCallback(({ item }: any) => {
+    return (
+      <ListingCard 
+        item={item} 
+        onPress={() => navigation.navigate('ListingDetail', { listing: item })} 
+      />
+    );
+  }, [navigation]);
+
+  const keyExtractor = useCallback((item: any) => item.id.toString(), []);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -402,10 +338,14 @@ export default function HomeScreen({ navigation }: any) {
       ) : (
         <FlatList 
           data={filteredListings}
-          keyExtractor={(item, index) => `home-${item.id}-${index}`}
           renderItem={renderItem}
-          contentContainerStyle={styles.listContainer}
+          keyExtractor={keyExtractor}
+          initialNumToRender={5}
+          maxToRenderPerBatch={10}
+          windowSize={10}
+          removeClippedSubviews={true}
           showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.listContainer}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <View style={styles.emptyIconCircle}>
@@ -612,90 +552,7 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     gap: 15,
   },
-  card: {
-    backgroundColor: '#FFF',
-    borderRadius: 12,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 16,
-  },
-  patientInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  bloodBadge: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  bloodBadgeText: {
-    color: '#FFF',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  patientName: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#1A1A2E',
-    marginBottom: 4,
-  },
-  hospital: {
-    fontSize: 13,
-    color: '#666',
-  },
-  urgencyBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-    borderWidth: 1,
-  },
-  urgencyDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    marginRight: 4,
-  },
-  urgencyText: {
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  cardFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderTopWidth: 1,
-    borderTopColor: '#F0F0F0',
-    paddingTop: 12,
-  },
-  footerText: {
-    fontSize: 13,
-    color: '#666',
-    fontWeight: '500',
-  },
-  statusBadgeHome: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-    borderWidth: 1,
-  },
-  statusTextHome: {
-    fontSize: 12,
-  },
+
   cityFilterRow: {
     flexDirection: 'row',
     alignItems: 'center',
