@@ -5,6 +5,7 @@ import { getMyApplications, getMyCreatedListings, getUserProfile, updateUserProf
 import { changePassword, deleteAccount } from '../api/auth';
 import { getErrorMessage } from '../utils/errors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 import { Ionicons } from '@expo/vector-icons';
 
 const getUrgencyColor = (urgency: string) => {
@@ -212,7 +213,7 @@ export default function ProfileScreen({ navigation }: any) {
       'Çıkış Yap',
       'Hesabınızdan çıkış yapmak istediğinize emin misiniz?',
       [{ text: 'İptal', style: 'cancel' }, { text: 'Çıkış Yap', style: 'destructive', onPress: async () => {
-        await AsyncStorage.removeItem('userToken');
+        await SecureStore.deleteItemAsync('userToken');
         const rootNav = navigation.getParent()?.getParent() || navigation;
         rootNav.reset({ index: 0, routes: [{ name: 'Login' }] });
       }}]
@@ -231,7 +232,7 @@ export default function ProfileScreen({ navigation }: any) {
           onPress: async () => {
             try {
               await deleteAccount();
-              await AsyncStorage.removeItem('userToken');
+              await SecureStore.deleteItemAsync('userToken');
               const rootNav = navigation.getParent()?.getParent() || navigation;
               rootNav.reset({ index: 0, routes: [{ name: 'Login' }] });
             } catch (error: any) {
