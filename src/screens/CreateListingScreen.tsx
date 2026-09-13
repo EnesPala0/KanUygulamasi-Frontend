@@ -16,6 +16,7 @@ import {
   FlatList
 } from 'react-native';
 import { createBloodRequest } from '../api/blood';
+import { isValidUnits } from '../utils/validators';
 import SuccessModal from '../components/SuccessModal';
 import { TURKEY_CITIES } from '../constants/cities';
 import { Ionicons } from '@expo/vector-icons';
@@ -50,6 +51,11 @@ export default function CreateListingScreen({ navigation }: any) {
   const handleSubmit = async () => {
     if (!bloodType || !hospital || !city || !district || !unitsNeeded || !urgency) {
       Alert.alert('Hata', 'Lütfen tüm zorunlu alanları doldurun.');
+      return;
+    }
+
+    if (!isValidUnits(unitsNeeded)) {
+      Alert.alert('Geçersiz Ünite', 'Lütfen 1 ile 50 arasında geçerli bir ünite sayısı girin.');
       return;
     }
 

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { loginUser, forgotPassword } from '../api/auth';
 import { getErrorMessage } from '../utils/errors';
+import { isValidEmail } from '../utils/validators';
 import * as SecureStore from 'expo-secure-store';
 import { Ionicons } from '@expo/vector-icons';
 import { 
@@ -36,6 +37,11 @@ export default function LoginScreen({ navigation }: any) {
       return;
     }
 
+    if (!isValidEmail(email)) {
+      Alert.alert('Geçersiz E-posta', 'Lütfen geçerli bir e-posta adresi giriniz.');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const data = await loginUser(email, password);
@@ -57,7 +63,7 @@ export default function LoginScreen({ navigation }: any) {
   };
 
   const handleForgotPassword = async () => {
-    if (!forgotEmail || !forgotEmail.includes('@')) {
+    if (!forgotEmail || !isValidEmail(forgotEmail)) {
       Alert.alert('Uyarı', 'Lütfen geçerli bir e-posta adresi giriniz.');
       return;
     }

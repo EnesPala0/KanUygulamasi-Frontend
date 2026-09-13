@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { registerUser } from '../api/auth';
 import { getErrorMessage } from '../utils/errors';
+import { isValidEmail, isValidName } from '../utils/validators';
 import { Ionicons } from '@expo/vector-icons';
 import {
   StyleSheet,
@@ -72,6 +73,18 @@ export default function SignupScreen({ navigation }: any) {
   // Modelindeki gorm:"not null" kurallarına göre tüm alanların doluluğunu kontrol ediyoruz
   if (!firstName || !lastName || !email || !password || !phone || !bloodType || !city || !district) {
     Alert.alert('Hata', 'Lütfen tüm alanları eksiksiz doldurun.');
+    return;
+  }
+
+  // İsim Soyisim Doğrulaması (Rakam veya özel karakter içeremez)
+  if (!isValidName(firstName) || !isValidName(lastName)) {
+    Alert.alert('Geçersiz İsim', 'Ad ve soyad sadece harflerden oluşmalı ve en az 2 karakter olmalıdır.');
+    return;
+  }
+
+  // E-posta Doğrulaması
+  if (!isValidEmail(email)) {
+    Alert.alert('Geçersiz E-posta', 'Lütfen geçerli bir e-posta adresi giriniz.');
     return;
   }
 
