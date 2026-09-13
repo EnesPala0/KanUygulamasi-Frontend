@@ -2,8 +2,8 @@ import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 import { logoutAndRedirect } from '../navigation/navigationRef';
 
-// AWS Sunucu IP'si
-const BASE_URL = 'https://api.kanbagi.me/api';
+// API Sunucu IP'si
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8080/api';
 
 const apiClient = axios.create({
     baseURL: BASE_URL,
