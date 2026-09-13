@@ -16,6 +16,7 @@ import {
   FlatList
 } from 'react-native';
 import { createBloodRequest } from '../api/blood';
+import SuccessModal from '../components/SuccessModal';
 import { TURKEY_CITIES } from '../constants/cities';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -38,6 +39,7 @@ export default function CreateListingScreen({ navigation }: any) {
   const [urgency, setUrgency] = useState('');
   const [medicalNote, setMedicalNote] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const [isCityModalVisible, setCityModalVisible] = useState(false);
   const [citySearchQuery, setCitySearchQuery] = useState('');
 
@@ -63,30 +65,24 @@ export default function CreateListingScreen({ navigation }: any) {
         medical_note: medicalNote,
       });
 
-      Alert.alert(
-        'Başarılı', 
-        'İlanınız başarıyla oluşturuldu! Profil > İlanlarım (Açtıklarım) sekmesinden gelen gönüllü başvurularını anlık takip edip onaylayabilirsiniz.', 
-        [
-          { 
-            text: 'Tamam', 
-            onPress: () => {
-              setBloodType('');
-              setHospital('');
-              setCity('');
-              setDistrict('');
-              setUnitsNeeded('');
-              setUrgency('');
-              setMedicalNote('');
-              navigation.goBack();
-            } 
-          }
-        ]
-      );
+      setShowSuccess(true);
     } catch (error) {
       Alert.alert('Hata', 'İlan oluşturulurken bir hata oluştu. Lütfen tekrar deneyin.');
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleSuccessClose = () => {
+    setShowSuccess(false);
+    setBloodType('');
+    setHospital('');
+    setCity('');
+    setDistrict('');
+    setUnitsNeeded('');
+    setUrgency('');
+    setMedicalNote('');
+    navigation.goBack();
   };
 
   return (
@@ -216,11 +212,11 @@ export default function CreateListingScreen({ navigation }: any) {
         </TouchableOpacity>
       </View>
 
-      {/* Şehir Seçici Modal */}
+      {/* Şehir Seçim Modalı */}
       <Modal
         visible={isCityModalVisible}
+        animationType="slide"
         transparent={true}
-        animationType="fade"
         onRequestClose={() => setCityModalVisible(false)}
       >
         <KeyboardAvoidingView
@@ -266,6 +262,14 @@ export default function CreateListingScreen({ navigation }: any) {
           </View>
         </KeyboardAvoidingView>
       </Modal>
+
+      <SuccessModal 
+        visible={showSuccess}
+        title="İlan Oluşturuldu!"
+        description="İlanınız başarıyla oluşturuldu. Profil > İlanlarım (Açtıklarım) sekmesinden başvuruları anlık takip edip onaylayabilirsiniz."
+        buttonText="İlanlarıma Git"
+        onClose={handleSuccessClose}
+      />
     </SafeAreaView>
   );
 }

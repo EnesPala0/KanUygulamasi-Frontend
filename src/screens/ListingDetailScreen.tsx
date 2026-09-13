@@ -4,6 +4,7 @@ import { applyAsVolunteer, cancelVolunteerApplication, getBloodRequestById, getV
 import { getErrorMessage } from '../utils/errors';
 import { Ionicons } from '@expo/vector-icons';
 import * as ExpoLinking from 'expo-linking';
+import SuccessModal from '../components/SuccessModal';
 
 const getUrgencyColor = (urgency: string) => {
   if (urgency === 'Kritik') return '#E63946';
@@ -43,6 +44,7 @@ export default function ListingDetailScreen({ route, navigation }: any) {
   const [listingData, setListingData] = useState<any>(listing || {});
   const [currentStatus, setCurrentStatus] = useState<string>(normalizeListingStatus(listing?.status || 'Aktif'));
   const [isVolunteered, setIsVolunteered] = useState<boolean>(listing?.isAlreadyVolunteered || false);
+  const [showSuccess, setShowSuccess] = useState<boolean>(false);
   const [isMine, setIsMine] = useState<boolean>(listing?.isMine || false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [isLoadingDetails, setIsLoadingDetails] = useState<boolean>(true);
@@ -179,7 +181,7 @@ export default function ListingDetailScreen({ route, navigation }: any) {
                 setIsSubmitting(true);
                 await applyAsVolunteer(listingData.id || listing.id);
                 setIsVolunteered(true);
-                Alert.alert('Harika!', 'Başvurunuz başarıyla hastaya iletildi.');
+                setShowSuccess(true);
               } catch (error: any) {
                 console.log("Başvuru Hatası detay:", error?.response?.data || error?.message);
                 const rawMsg = `${error?.response?.data?.error || ''} ${error?.response?.data?.details || ''} ${error?.response?.data?.message || ''} ${error?.message || ''}`.toString().toLowerCase();
@@ -456,6 +458,14 @@ export default function ListingDetailScreen({ route, navigation }: any) {
       </View>
       </>
       )}
+
+      <SuccessModal 
+        visible={showSuccess}
+        title="Harika! ❤️"
+        description="Gönüllü başvurunuz başarıyla oluşturuldu. İletişim bilgileriniz hastaya iletildi, size en kısa sürede dönüş yapılacaktır."
+        buttonText="Anladım"
+        onClose={() => setShowSuccess(false)}
+      />
     </SafeAreaView>
   );
 }
