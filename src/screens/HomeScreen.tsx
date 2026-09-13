@@ -33,7 +33,7 @@ export default function HomeScreen({ navigation }: any) {
 
   const [activeFilter, setActiveFilter] = useState('Tümü');
   const [activeBloodType, setActiveBloodType] = useState('Tümü');
-  const [activeCity, setActiveCity] = useState('Tümü');
+  const [activeCities, setActiveCities] = useState<string[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isCityModalVisible, setCityModalVisible] = useState(false);
@@ -250,7 +250,9 @@ export default function HomeScreen({ navigation }: any) {
   const filteredListings = listings.filter(item => {
     const matchUrgency = activeFilter === 'Tümü' || (item.urgency && item.urgency.toLowerCase() === activeFilter.toLowerCase());
     const matchBlood = activeBloodType === 'Tümü' || item.bloodType === activeBloodType;
-    const matchCity = activeCity === 'Tümü' || (item.city && item.city.toLowerCase() === activeCity.toLowerCase()) || (item.location && item.location.toLowerCase().includes(activeCity.toLowerCase()));
+    const matchCity = activeCities.length === 0 || 
+      (item.city && activeCities.some(c => item.city.toLowerCase() === c.toLowerCase())) || 
+      (item.location && activeCities.some(c => item.location.toLowerCase().includes(c.toLowerCase())));
     return matchUrgency && matchBlood && matchCity;
   });
 
@@ -296,16 +298,16 @@ export default function HomeScreen({ navigation }: any) {
             <Text style={styles.cityFilterLabel}>Şehir:</Text>
           </View>
           <TouchableOpacity 
-            style={[styles.cityChipButton, activeCity !== 'Tümü' && styles.cityChipButtonActive]}
+            style={[styles.cityChipButton, activeCities.length > 0 && styles.cityChipButtonActive]}
             onPress={() => setCityModalVisible(true)}
           >
-            <Text style={[styles.cityChipText, activeCity !== 'Tümü' && styles.cityChipTextActive]}>
-              {activeCity === 'Tümü' ? 'Tüm Şehirler (Seç ▾)' : activeCity}
+            <Text style={[styles.cityChipText, activeCities.length > 0 && styles.cityChipTextActive]}>
+              {activeCities.length === 0 ? 'Tüm Şehirler (Seç ▾)' : (activeCities.length === 1 ? activeCities[0] : `${activeCities.length} Şehir Seçili`)}
             </Text>
-            {activeCity !== 'Tümü' && (
+            {activeCities.length > 0 && (
               <TouchableOpacity 
                 style={styles.cityChipClear} 
-                onPress={() => setActiveCity('Tümü')}
+                onPress={() => setActiveCities([])}
               >
                 <Ionicons name="close-circle" size={16} color="#FFF" style={{ marginLeft: 4 }} />
               </TouchableOpacity>
@@ -380,22 +382,22 @@ export default function HomeScreen({ navigation }: any) {
                 <Ionicons name="water-outline" size={40} color="#E63946" />
               </View>
               <Text style={styles.emptyTitle}>
-                {(activeFilter !== 'Tümü' || activeBloodType !== 'Tümü' || activeCity !== 'Tümü') 
+                {(activeFilter !== 'Tümü' || activeBloodType !== 'Tümü' || activeCities.length > 0) 
                   ? 'Seçilen Filtreye Uygun İlan Yok' 
                   : 'Şu An İçin Hiç Kan İlanı Bulunmuyor'}
               </Text>
               <Text style={styles.emptySubText}>
-                {(activeFilter !== 'Tümü' || activeBloodType !== 'Tümü' || activeCity !== 'Tümü')
+                {(activeFilter !== 'Tümü' || activeBloodType !== 'Tümü' || activeCities.length > 0)
                   ? 'Filtreleri sıfırlayarak diğer şehir veya kan gruplarındaki acil ihtiyaçlara göz atabilirsiniz.'
                   : 'Sistemde henüz aktif bir kan talebi yok. Yeni bir talep olduğunda burada görünecektir.'}
               </Text>
-              {(activeFilter !== 'Tümü' || activeBloodType !== 'Tümü' || activeCity !== 'Tümü') ? (
+              {(activeFilter !== 'Tümü' || activeBloodType !== 'Tümü' || activeCities.length > 0) ? (
                 <TouchableOpacity 
                   style={styles.emptyActionButton} 
                   onPress={() => {
                     setActiveFilter('Tümü');
                     setActiveBloodType('Tümü');
-                    setActiveCity('Tümü');
+                    setActiveCities([]);
                   }}
                 >
                   <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -458,21 +460,32 @@ export default function HomeScreen({ navigation }: any) {
               keyExtractor={item => 'cm-' + item}
               style={{ maxHeight: 280 }}
               keyboardShouldPersistTaps="handled"
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={[styles.cityItem, activeCity === item && styles.cityItemActive]}
-                  onPress={() => {
-                    setActiveCity(item);
-                    setCityModalVisible(false);
-                    setCitySearchQuery('');
-                  }}
-                >
-                  <Text style={[styles.cityItemText, activeCity === item && styles.cityItemTextActive]}>
-                    {item === 'Tümü' ? '🌍 Tüm Şehirler (Filtresiz)' : item}
-                  </Text>
-                  {activeCity === item && <Text style={styles.cityCheck}>✓</Text>}
-                </TouchableOpacity>
-              )}
+              renderItem={({ item }) => {
+                const isSelected = activeCities.includes(item);
+                return (
+                  <TouchableOpacity
+                    style={[styles.cityItem, isSelected && styles.cityItemActive]}
+                    onPress={() => {
+                      if (item === 'Tümü') {
+                        setActiveCities([]);
+                        setCityModalVisible(false);
+                        setCitySearchQuery('');
+                      } else {
+                        if (isSelected) {
+                          setActiveCities(activeCities.filter(c => c !== item));
+                        } else {
+                          setActiveCities([...activeCities, item]);
+                        }
+                      }
+                    }}
+                  >
+                    <Text style={[styles.cityItemText, isSelected && styles.cityItemTextActive]}>
+                      {item === 'Tümü' ? '🌍 Tüm Şehirler (Filtreyi Temizle)' : item}
+                    </Text>
+                    {isSelected && <Text style={styles.cityCheck}>✓</Text>}
+                  </TouchableOpacity>
+                );
+              }}
             />
           </View>
         </KeyboardAvoidingView>
@@ -533,6 +546,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FAFAFA',
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
   header: {
     flexDirection: 'row',
